@@ -1,0 +1,7 @@
+- name: install java
+  apt: pkg=openjdk-7-jre-headless state=installed update_cache=yes
+- name: download leiningen
+  command: /usr/bin/wget "https://raw.github.com/technomancy/leiningen/stable/bin/lein"
+           -O /usr/bin/lein creates=/usr/bin/lein
+- name: allow execution of leiningen
+  file: path=/usr/bin/lein owner=jds group=jds mode=0777

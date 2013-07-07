@@ -1,0 +1,22 @@
+- name: add the jds user
+  user: name=jds groups=sudo shell=/bin/bash password=$1$s8lszy3m$awtmW51SHUZh51ygzeCGY.
+- name: create .ssh dir
+  file: path=/home/jds/.ssh state=directory
+- name: ssh-copy-id
+  copy: src=authorized_keys dest=/home/jds/.ssh/authorized_keys owner=jds group=jds
+- name: install zsh
+  apt: pkg=zsh state=present update_cache=yes
+- name: install vim
+  apt: pkg=vim state=present update_cache=yes
+- name: install git
+  apt: pkg=git state=present update_cache=yes
+- name: git clone oh-my-zsh
+  git: repo=git://github.com/johnswanson/oh-my-zsh dest=/home/jds/.oh-my-zsh
+- name: change my user to use zsh
+  user: name=jds shell=/bin/zsh
+- name: copy files (1)
+  copy: src=.gitconfig dest=/home/jds/.gitconfig owner=jds group=jds
+- name: copy files (2)
+  copy: src=.vimrc dest=/home/jds/.vimrc owner=jds group=jds
+- name: copy files (3)
+  copy: src=.zshrc dest=/home/jds/.zshrc owner=jds group=jds

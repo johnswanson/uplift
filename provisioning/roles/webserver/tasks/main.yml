@@ -1,0 +1,27 @@
+- name: redirect port 80 to 8080 (use port 80 without sudo)
+  command: /sbin/iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+- name: touch root .ssh folder
+  file: state=directory path=/root/.ssh
+- name: copy id_rsa
+  copy: src=ssh dest=/root/.ssh/id_rsa
+- name: set id_rsa permissions
+  file: path=/root/.ssh/id_rsa mode=0600
+- name: copy public key
+  copy: src=ssh.pub dest=/root/.ssh/id_rsa.pub
+- name: touch known_hosts
+  copy: src=known_hosts dest=/root/.ssh/known_hosts
+- name: git clone
+  git: dest=/home/jds/educanon repo=git@github.com:johnswanson/educanon-clj
+  tags:
+    - clone
+- name: restart server (stop)
+  command: /usr/bin/env LEIN_ROOT=true /usr/bin/lein daemon stop server
+           chdir=/home/jds/educanon/educanon
+           removes=/home/jds/educanon/educanon/server.pid
+  tags:
+    - clone
+- name: start server (start)
+  command: /usr/bin/env LEIN_ROOT=true /usr/bin/lein daemon start server
+           chdir=/home/jds/educanon/educanon
+  tags:
+    - clone
