@@ -1,0 +1,53 @@
+[
+ ;; create partition
+ {:db/id #db/id[:db.part/db]
+  :db/ident :workouts
+  :db.install/_partition :db.part/db}
+
+ ;; the parts of a workout -- called lifts
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :lift/reps
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "The number of reps"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :lift/sets
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "The number of sets"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :lift/weight
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "How much weight was lifted"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :lift/type
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A lift's type"
+  :db.install/_attribute :db.part/db}
+
+ ;; a day's workout
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :workout/day
+  :db/valueType :db.type/long
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one
+  :db/doc "The date the workout was completed on"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :workout/lifts
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "A workout has many lifts"
+  :db.install/_attribute :db.part/db}
+]
