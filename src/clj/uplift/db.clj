@@ -1,1 +1,0 @@
-(ns uplift.db)

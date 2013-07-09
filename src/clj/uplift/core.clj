@@ -1,4 +1,5 @@
 (ns uplift.core
+  (:require [uplift.views.index :refer [index]])
   (:require [compojure.core :refer [GET PUT POST DELETE ANY defroutes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.cookies :as cookies]
@@ -13,7 +14,7 @@
 
 (defroutes routes
   (resources "/public")
-  (GET "/" [] "hello world"))
+  (GET "/" [] (index {:message "hey"})))
 
 (def app (-> routes
            (params/wrap-params)
