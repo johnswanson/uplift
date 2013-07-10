@@ -50,4 +50,34 @@
   :db/cardinality :db.cardinality/many
   :db/doc "A workout has many lifts"
   :db.install/_attribute :db.part/db}
+
+ ;; defining a user's attributes
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/username
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A user's username"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/password
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A user's password"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/cell-number
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "A user's phone numbers authorized to text us and make changes"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/workouts
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "A user has many workouts"
+  :db.install/_attribute :db.part/db}
 ]

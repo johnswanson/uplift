@@ -1,6 +1,6 @@
 (ns uplift.core
   (:require [uplift.views.index :refer [index]])
-  (:require [compojure.core :refer [GET PUT POST DELETE ANY defroutes]]
+  (:require [compojure.core :refer [GET PUT POST DELETE ANY routes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.cookies :as cookies]
             [ring.middleware.params :as params]
@@ -12,16 +12,12 @@
     (assoc-in [:headers "Location"] url)
     (assoc :status 302)))
 
-(defroutes routes
-  (resources "/public")
-  (GET "/" [] (index {:message "hey"})))
+(defn create-handler* [db]
+  (routes
+    (resources "/public")
+    (GET "/" [] (index {:message "howdy hey"}))))
 
-(def app (-> routes
-           (params/wrap-params)
-           (cookies/wrap-cookies)))
-
-(defn -main
-  ([] (-main 8080))
-  ([port] (serve app {:port (Integer. port)
-                      :open-browser? false
-                      :stacktraces? false})))
+(defn create-handler [db]
+  (-> (create-handler* db)
+    (params/wrap-params)
+    (cookies/wrap-cookies)))
