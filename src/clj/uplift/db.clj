@@ -6,6 +6,7 @@
             [clj-bcrypt-wrapper.core :refer [encrypt check-password]]))
 
 (defn setup-db
+  "Used to set up the DB in system.clj"
   ([] {:uri "datomic:free://localhost:4334/uplift"
        :conn (atom nil)}))
 
@@ -13,10 +14,15 @@
 
 (def uri "datomic:free://localhost:4334/uplift")
 
-(def schema-tx (read-string (slurp "schema.dtm")))
-
-(defn init [conn]
-  (d/transact conn schema-tx))
+(defn schema-tx [] (read-string (slurp "schema.dtm")))
+(defn connect!
+  "Creates the database (if it doesn't already exist), connects to it, and
+  returns that connection."
+  [uri]
+  (d/create-database uri)
+  (let [conn (d/connect uri)]
+    (d/transact conn (schema-tx))
+    conn))
 
 (defn day
   ([] (coerce/to-long (clj-time/today-at 00 00)))

@@ -6,7 +6,7 @@
 
 (defn system []
   (let [db (uplift.db/setup-db)
-        handler (uplift.core/create-handler db)]
+        handler (uplift.core/create-handler (:conn db))]
     {:db db
      :server {:handler handler}}))
 
@@ -18,7 +18,7 @@
   (let [get-atom (partial get-in system)
         server (run-jetty (get-in system [:server :handler])
                           {:port 8080 :join? false})
-        conn (d/connect (get-in system [:db :uri]))]
+        conn (uplift.db/connect! (get-in system [:db :uri]))]
     (reset! (get-atom [:db :conn]) conn)
     (assoc-in system [:server :server] server)))
 
