@@ -7,7 +7,7 @@
 
 (defn setup-db
   ([] {:uri "datomic:free://localhost:4334/uplift"
-       :conn nil}))
+       :conn (atom nil)}))
 
 (declare pprint-workout pprint-lift)
 
