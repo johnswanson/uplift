@@ -1,6 +1,10 @@
 (ns uplift.views.index
-  (:require [net.cgrand.enlive-html :as html]))
+  (:require [net.cgrand.enlive-html :as html]
+            [uplift.views.base :as base]))
 
-(html/deftemplate index "uplift/views/index.html"
-  [ctxt]
-  [:head :title] (html/content (:message ctxt)))
+(def index-content (html/html-resource "uplift/views/index.html"))
+
+(defn index [context]
+  (apply
+    str
+    (html/emit* (base/content index-content))))

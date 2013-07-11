@@ -1,5 +1,6 @@
 (ns uplift.core
   (:require [uplift.views.index :refer [index]]
+            [uplift.views.login :as login-view]
             [uplift.session]
             [compojure.core :refer [GET PUT POST DELETE ANY routes]]
             [compojure.route :refer [not-found resources]]
@@ -17,7 +18,8 @@
 (defn create-handler* [db-conn]
   (routes
     (resources "/public")
-    (GET "/" [] (index {:message "howdy hey"}))))
+    (GET "/" [] (index {:message "howdy hey"}))
+    (GET "/login" [] (login-view/login nil))))
 
 (defn create-handler [db-conn]
   (-> (create-handler* db-conn)
