@@ -24,6 +24,8 @@
     (d/transact conn (schema-tx))
     conn))
 
+(defn disconnect! [conn] (d/release conn))
+
 (defn day
   ([] (coerce/to-long (clj-time/today-at 00 00)))
   ([t] (coerce/to-long
@@ -51,7 +53,7 @@
 (defn create-workout [conn time]
   (d/transact conn [{:db/id (d/tempid :workouts)
                      :workout/day (day time)}])
-  (get-workout (day time)))
+  (get-workout conn (day time)))
 
 (defn add-user [conn username password]
   (d/transact conn [{:db/id (d/tempid :workouts)
