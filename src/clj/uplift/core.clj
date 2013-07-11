@@ -12,12 +12,12 @@
     (assoc-in [:headers "Location"] url)
     (assoc :status 302)))
 
-(defn create-handler* [db]
+(defn create-handler* [db-conn]
   (routes
     (resources "/public")
     (GET "/" [] (index {:message "howdy hey"}))))
 
-(defn create-handler [db]
-  (-> (create-handler* db)
+(defn create-handler [db-conn]
+  (-> (create-handler* db-conn)
     (params/wrap-params)
     (cookies/wrap-cookies)))
