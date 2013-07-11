@@ -34,3 +34,5 @@
 (defn reset []
   (stop)
   (refresh :after 'user/go))
+
+(defn conn [] @(get-in (reset) [:db :conn]))

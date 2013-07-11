@@ -82,4 +82,21 @@
   :db/cardinality :db.cardinality/many
   :db/doc "A user has many workouts"
   :db.install/_attribute :db.part/db}
+
+ ;; setting up sessions
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :session/session-id
+  :db/valueType :db.type/string
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one
+  :db/doc "A session has a single ID"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id [:db.part/db]
+  :db/ident :session/user
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "A session can own a user (and probably does!)"
+  :db.install/_attribute :db.part/db}
 ]
