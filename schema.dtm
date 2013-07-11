@@ -55,6 +55,7 @@
 
  {:db/id #db/id[:db.part/db]
   :db/ident :user/username
+  :db/unique :db.unique/identity
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "A user's username"
@@ -69,6 +70,7 @@
 
  {:db/id #db/id[:db.part/db]
   :db/ident :user/cell-number
+  :db/unique :db.unique/value
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/many
   :db/doc "A user's phone numbers authorized to text us and make changes"
