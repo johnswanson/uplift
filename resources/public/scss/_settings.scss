@@ -1203,12 +1203,12 @@ $default-float: left;
 
 // Background color for the top bar
 
-// $topbar-bg: #111 !default;
+$topbar-bg: $darkest !default;
 
 // Height and margin
 
-// $topbar-height: 45px;
-// $topbar-margin-bottom: emCalc(30px);
+$topbar-height: 55px;
+$topbar-margin-bottom: emCalc(40px);
 
 // Control Input height for top bar
 
@@ -1217,7 +1217,7 @@ $default-float: left;
 // Controlling the styles for the title in the top bar
 
 // $topbar-title-weight: bold;
-// $topbar-title-font-size: emCalc(17px);
+$topbar-title-font-size: emCalc(24px);
 
 // Style the top bar dropdown elements
 
@@ -1230,14 +1230,14 @@ $default-float: left;
 
 // Set the link colors and styles for top-level nav
 
-// $topbar-link-color: #fff;
-// $topbar-link-color-hover: #fff;
+$topbar-link-color: #fff;
+$topbar-link-color-hover: #0E0;
 // $topbar-link-color-active: #fff;
-// $topbar-link-weight: bold;
-// $topbar-link-font-size: emCalc(13px);
-// $topbar-link-hover-lightness: -30%; // Darken by 30%
-// $topbar-link-bg-hover: darken($topbar-bg, 3%);
-// $topbar-link-bg-active: darken($topbar-bg, 3%);
+$topbar-link-weight: normal;
+$topbar-link-font-size: emCalc(18px);
+$topbar-link-hover-lightness: -30%; // Darken by 30%
+$topbar-link-bg-hover: darken($topbar-bg, 7%);
+$topbar-link-bg-active: darken($topbar-bg, 3%);
 
 // $topbar-dropdown-label-color: #555;
 // $topbar-dropdown-label-text-transform: uppercase;
@@ -1256,9 +1256,8 @@ $default-float: left;
 
 // Transitions and breakpoint styles
 
-// $topbar-transition-speed: 300ms;
 // $topbar-breakpoint: emCalc(940px); // Change to 9999px for always mobile layout
-// $topbar-media-query: "only screen and (min-width: #{$topbar-breakpoint})";
+$topbar-media-query: "only screen";
 
 // Divider Styles
 

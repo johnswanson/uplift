@@ -4,8 +4,8 @@
 
 (defn make-top-link [current {:keys [href text]}]
   (if (= current href)
-    [:li.active.current [:a {:href href} text]]
-    [:li.active [:a {:href href} text]]))
+    [:li.active [:a {:href href} text]]
+    [:li [:a {:href href} text]]))
 
 (defn links-for [user]
   (if user

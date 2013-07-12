@@ -1,3 +1,5 @@
+$darkest: #1C134D;
+
 // Global Foundation Settings
 @import "settings";
 
@@ -47,6 +49,8 @@
 // @import "foundation/components/tooltips";
 // @import "foundation/components/dropdown";
 
+@import "compass/css3/images";
+@import "compass/css3/box-shadow";
 
 $footer-height: 150px;
 
@@ -63,6 +67,10 @@ html, body {height: 100%;}
 	margin-top: -$footer-height; /* negative value of footer height */
 	height: $footer-height;
 	clear:both;
+  @include background(
+    linear-gradient(bottom, $darkest, darken($darkest, 5%))
+  );
+  @include box-shadow(inset #222 0 0 100px);
 }
 
 /*Opera Fix*/
