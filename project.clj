@@ -3,8 +3,9 @@
   :url "http://example.com/FIXME"
   :plugins [[lein-ring "0.8.5"]
             [lein-cljsbuild "0.3.2"]]
-  :profiles {:dev {:source-paths ["dev"]}
-             :dependencies [[org.clojure/tools.namespace "0.2.3"]]}
+  :profiles {:dev {:source-paths ["dev"]
+                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
+                                  [ring-mock "0.1.5"]]}}
   :source-paths ["src/clj"]
   :cljsbuild {:builds
               [{:source-paths ["src/cljs"]
@@ -16,6 +17,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"] ; clojure itself
                  [org.clojure/tools.namespace "0.2.3"]
+
+                 [prismatic/plumbing "0.1.0"]
 
                  [com.datomic/datomic-free "0.8.4020"]
 

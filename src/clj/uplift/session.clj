@@ -23,7 +23,8 @@
                                (ffirst (q query (db conn)))))
 
 (defn get-session [conn session-id]
-  (query-one conn [:find '?e :where ['?e :session/session-id session-id]]))
+  (when session-id
+    (query-one conn [:find '?e :where ['?e :session/session-id session-id]])))
 
 (defn read-data [conn key]
   (get-session conn key))
