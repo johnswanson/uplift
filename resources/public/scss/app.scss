@@ -7,6 +7,7 @@
 // Comment out this import if you are customizing you imports below
 @import "foundation";
 
+
 // Import specific parts of Foundation by commenting the import "foundation"
 // and uncommenting what you want below. You must uncomment the following if customizing
 
@@ -46,3 +47,33 @@
 // @import "foundation/components/tooltips";
 // @import "foundation/components/dropdown";
 
+
+$footer-height: 150px;
+
+html, body {height: 100%;}
+
+#outer-wrapper {min-height: 100%;}
+
+#content {overflow:auto;
+	padding-bottom: $footer-height;
+}
+
+#footer {
+  position: relative;
+	margin-top: -$footer-height; /* negative value of footer height */
+	height: $footer-height;
+	clear:both;
+}
+
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;
+}
+
+.top-bar-section ul li.active.current > a {
+  color: blue;
+}

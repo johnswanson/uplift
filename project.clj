@@ -32,7 +32,7 @@
                  [clj-bcrypt-wrapper "0.1.0"]
                   
 
-                 [enlive "1.1.1"] ; templating, server-side
+                 [hiccup "1.0.3"]
                  [enfocus "2.0.0-SNAPSHOT"] ; templating, client-side
 
                  ])

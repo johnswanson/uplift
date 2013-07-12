@@ -1,9 +1,44 @@
 (ns uplift.views.base
-  (:require [net.cgrand.enlive-html :as html]))
+  (:require [hiccup.core]
+            [hiccup.page :refer [html5 include-css include-js]]))
 
-(def base (html/html-resource "uplift/views/base.html"))
+(defn make-top-link [current {:keys [href text]}]
+  (if (= current href)
+    [:li.active.current [:a {:href href} text]]
+    [:li.active [:a {:href href} text]]))
 
-(defn content
-  "Takes some stuff and puts it into the main content div of our base template"
-  [stuff]
-  (html/transform base [:div#wrapper] (html/content stuff)))
+(defn links-for [user]
+  (if user
+    [{:href "/add" :text "Add Workouts"}
+     {:href "/see" :text "See Workouts"}
+     {:href "/logout" :text "Logout"}]
+    [{:href "/login" :text "Login"}
+     {:href "/signup" :text "Signup"}]))
+
+(def base-scripts ["/public/js/uplift.js"])
+
+(defn base [{:keys [content scripts top-links current]}]
+  (html5 [:html {:lang "en"}
+          [:head
+           [:meta {:charset "UTF-8"}]
+           [:title "Uplift"]
+           [:link {:href "/public/css/app.css"
+                   :rel "stylesheet"
+                   :type "text/css"}]
+           [:link {:href "/public/css/print.css"
+                   :media "print"
+                   :rel "stylesheet"
+                   :type "text/css"}]]
+          [:body
+           [:div#outer-wrapper 
+            [:div#header
+             [:nav.top-bar.fixed
+              [:ul.title-area
+               [:li.name [:h1 [:a {:href "/"} "Uplift"]]]]
+              [:section.top-bar-section
+               [:ul.left
+                (map (partial make-top-link current) top-links)]]]]
+            [:div#content content]]
+           [:div#footer "footer content"]
+           (include-js "/public/js/uplift.js")
+           (apply include-js scripts)]]))

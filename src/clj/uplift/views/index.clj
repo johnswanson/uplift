@@ -1,10 +1,11 @@
 (ns uplift.views.index
-  (:require [net.cgrand.enlive-html :as html]
-            [uplift.views.base :as base]))
+  (:require [uplift.views.base :as base]
+            [hiccup.core]
+            [hiccup.page :refer [html5 include-css include-js]]))
 
-(def index-content (html/html-resource "uplift/views/index.html"))
+(def index-content
+  [:div.row
+   [:div.small-6.small-offset-3 "This is our sweet content!"]])
 
-(defn index [context]
-  (apply
-    str
-    (html/emit* (base/content index-content))))
+(defn get-page [{:keys [user]}]
+  (base/base {:content index-content :top-links (base/links-for user)}))
