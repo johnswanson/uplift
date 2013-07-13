@@ -54,7 +54,9 @@
   (merge valid-graph
          {:validate (fnk [conn canonical]
                       [(when (get-user conn {:user/username canonical})
-                         "That email address is already in our database.")])
+                         "That email address is already in our database.")
+                       (when (= (count canonical) 0)
+                         "You must enter an email address!")])
           :canonical (fnk [username] (clojure.string/lower-case username))}))
 
 (def password-graph
