@@ -23,7 +23,7 @@
 (defn create-handler* [db-conn]
   (routes
     (resources "/public")
-    (GET "/" [] (index/get-page nil))
+    (GET "/" {user :user} (index/get-page {:user user}))
     (GET "/signup" [] (signup/get-page nil))
     (POST "/signup" [email password]
       (let [[errors user] (uplift.user/signup @db-conn email password)]
@@ -38,10 +38,17 @@
           (login/get-page {:form {:email email
                                   :errors [err]}})
           (redirect-as user "/"))))
+    (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
+
+(defn wrap-user [handler]
+  (fn [req]
+    (let [user (get-in req [:session :session/user])]
+      (handler (assoc req :user user)))))
 
 (defn create-handler [db-conn]
   (-> (create-handler* db-conn)
     (params/wrap-params)
+    (wrap-user)
     (session/wrap-session {:store (uplift.session/store db-conn)})
     (cookies/wrap-cookies)))
