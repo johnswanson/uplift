@@ -5,7 +5,7 @@
 
 (def index-content
   [:div.row
-   [:div.small-6.small-offset-3 "This is our sweet content!"]])
+   [:div.small-6.small-offset-3.columns "This is our sweet content!"]])
 
 (defn get-page [{:keys [user]}]
   (base/base {:content index-content
