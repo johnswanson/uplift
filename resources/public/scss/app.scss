@@ -1,4 +1,5 @@
-$darkest: #1C134D;
+$darkest: #333;
+$against-darkest: #888;
 
 // Global Foundation Settings
 @import "settings";
@@ -67,10 +68,9 @@ html, body {height: 100%;}
 	margin-top: -$footer-height; /* negative value of footer height */
 	height: $footer-height;
 	clear:both;
-  @include background(
-    linear-gradient(bottom, $darkest, darken($darkest, 5%))
-  );
-  @include box-shadow(inset #222 0 0 100px);
+  background-color: $darkest;
+  border-top: solid 1px lighten($darkest, 20%);
+  @include box-shadow(inset darken($darkest, 20%) 0 0 100px);
 }
 
 /*Opera Fix*/

@@ -1230,9 +1230,9 @@ $topbar-title-font-size: emCalc(24px);
 
 // Set the link colors and styles for top-level nav
 
-$topbar-link-color: #fff;
-$topbar-link-color-hover: #0E0;
-// $topbar-link-color-active: #fff;
+$topbar-link-color: $against-darkest;
+$topbar-link-color-hover: $against-darkest;
+$topbar-link-color-active: darken($against-darkest, 10%);
 $topbar-link-weight: normal;
 $topbar-link-font-size: emCalc(18px);
 $topbar-link-hover-lightness: -30%; // Darken by 30%
