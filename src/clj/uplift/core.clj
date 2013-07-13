@@ -2,6 +2,7 @@
   (:require [uplift.views.index :as index]
             [uplift.views.login :as login]
             [uplift.views.signup :as signup]
+            [uplift.views.add :as add]
             [uplift.session]
             [uplift.user]
             [compojure.core :refer [GET PUT POST DELETE ANY routes]]

@@ -6662,27 +6662,80 @@ a.th {
   max-width: 800px;
 }
 
-/* line 58, ../scss/app.scss */
+/* line 56, ../scss/app.scss */
+div#login-form {
+  background-color: #333333;
+}
+
+/* line 60, ../scss/app.scss */
+input.login, input.signup {
+  border-style: solid;
+  border-width: 1px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  line-height: 1;
+  margin: 0 0 1.25em;
+  position: relative;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  padding-top: 0.75em;
+  padding-right: 1.5em;
+  padding-bottom: 0.8125em;
+  padding-left: 1.5em;
+  font-size: 1em;
+  background-color: #333333;
+  border-color: #1a1a1a;
+  color: white;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+}
+/* line 123, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-4.2.2/scss/foundation/components/_buttons.scss */
+input.login:hover, input.login:focus, input.signup:hover, input.signup:focus {
+  background-color: #1a1a1a;
+}
+/* line 134, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-4.2.2/scss/foundation/components/_buttons.scss */
+input.login:hover, input.login:focus, input.signup:hover, input.signup:focus {
+  color: white;
+}
+
+/* line 66, ../scss/app.scss */
+span.error {
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-block;
+  position: relative;
+  padding: "10px 20px";
+  font-size: 0.875em;
+  background-color: #c60f13;
+  color: white;
+  display: block;
+}
+
+/* line 75, ../scss/app.scss */
 html, body {
   height: 100%;
 }
 
-/* line 60, ../scss/app.scss */
+/* line 77, ../scss/app.scss */
 #outer-wrapper {
   min-height: 100%;
 }
 
-/* line 62, ../scss/app.scss */
+/* line 79, ../scss/app.scss */
 #content {
   overflow: auto;
-  padding-bottom: 150px;
+  padding-bottom: 300px;
 }
 
-/* line 66, ../scss/app.scss */
+/* line 83, ../scss/app.scss */
 #footer {
   position: relative;
   margin-top: -150px;
-  /* negative value of footer height */
   height: 150px;
   clear: both;
   background-color: #333333;
@@ -6693,16 +6746,11 @@ html, body {
 }
 
 /*Opera Fix*/
-/* line 77, ../scss/app.scss */
+/* line 94, ../scss/app.scss */
 body:before {
   content: "";
   height: 100%;
   float: left;
   width: 0;
   margin-top: -32767px;
-}
-
-/* line 85, ../scss/app.scss */
-.top-bar-section ul li.active.current > a {
-  color: blue;
 }
