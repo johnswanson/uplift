@@ -11,6 +11,7 @@
   (if user
     [{:href "/add" :text "Add Workouts"}
      {:href "/see" :text "See Workouts"}
+     {:href "/settings" :text "Settings"}
      {:href "/logout" :text "Logout"}]
     [{:href "/login" :text "Login"}
      {:href "/signup" :text "Signup"}]))

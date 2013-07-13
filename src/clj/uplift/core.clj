@@ -38,6 +38,12 @@
           (login/get-page {:form {:email email
                                   :errors [err]}})
           (redirect-as user "/"))))
+    (GET "/add" {user :user}
+      (when user "add a workout here"))
+    (GET "/see" {user :user}
+      (when user "see your workouts here"))
+    (GET "/settings" {user :user}
+      (when user "change your settings here"))
     (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
