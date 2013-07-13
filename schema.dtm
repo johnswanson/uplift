@@ -5,7 +5,7 @@
   :db.install/_partition :db.part/db}
 
  ;; the parts of a workout -- called lifts
-
+ 
  {:db/id #db/id[:db.part/db]
   :db/ident :lift/reps
   :db/valueType :db.type/long
@@ -27,11 +27,20 @@
   :db/doc "How much weight was lifted"
   :db.install/_attribute :db.part/db}
 
+ ;; an activity contains many lifts and has a type
+
  {:db/id #db/id[:db.part/db]
-  :db/ident :lift/type
+  :db/ident :activity/type
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
-  :db/doc "A lift's type"
+  :db/doc "An activity has a type, like 'squat' or 'deadlift'"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :activity/lifts
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "An activity contains many lifts"
   :db.install/_attribute :db.part/db}
 
  ;; a day's workout
@@ -45,10 +54,10 @@
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db]
-  :db/ident :workout/lifts
+  :db/ident :workout/activities
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/many
-  :db/doc "A workout has many lifts"
+  :db/doc "A workout has many activities, like a 'squat' and a 'deadlift'"
   :db.install/_attribute :db.part/db}
 
  ;; defining a user's attributes

@@ -1,0 +1,75 @@
+[
+ ;; fake user
+ {:db/id #db/id[:workouts -150]
+  :user/username "test"}
+
+ ;; fake workout
+ {:db/id #db/id[:workouts -200]
+  :workout/day 1024
+  ;; attach this workout to our user
+  :user/_workouts #db/id[:workouts -150]}
+
+ ;; fake activity
+ {:db/id #db/id[:workouts -100]
+  :activity/type "squat"
+  ;; attach the activity to our workout
+  :workout/_activities #db/id[:workouts -200]}
+
+ {:db/id #db/id[:workouts]
+  :lift/weight 225
+  :lift/reps 5
+  :lift/sets 3
+  :activity/_lifts #db/id[:workouts -100]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 100
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -100]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 125
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -100]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 185
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -100]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 185
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -100]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 185
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -100]}
+
+ ;; a new fake activity
+ {:db/id #db/id[:workouts -1000]
+  :activity/type "deadlift"
+  ;; attach the activity to our workout
+  :workout/_activities #db/id[:workouts -200]}
+
+ {:db/id #db/id[:workouts]
+  :lift/weight 125
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -1000]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 185
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -1000]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 200
+  :lift/reps 5
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -1000]}
+ {:db/id #db/id[:workouts]
+  :lift/weight 225
+  :lift/reps 4
+  :lift/sets 1
+  :activity/_lifts #db/id[:workouts -1000]}
+]

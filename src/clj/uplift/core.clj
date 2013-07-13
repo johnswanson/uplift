@@ -5,12 +5,14 @@
             [uplift.views.add :as add]
             [uplift.session]
             [uplift.user]
+            [uplift.workout]
             [compojure.core :refer [GET PUT POST DELETE ANY routes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.cookies :as cookies]
             [ring.middleware.session :as session]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
+            [clj-time.core :refer [now]]
             [ring.server.standalone :refer [serve]]))
 
 (defn redirect [res url]
@@ -40,7 +42,11 @@
                                   :errors [err]}})
           (redirect-as user "/"))))
     (GET "/add" {user :user}
-      (when user "add a workout here"))
+      (when user (add/get-page {:user user
+                                :activites (uplift.workout/user-workout
+                                             @db-conn
+                                             user
+                                             (now))})))
     (GET "/see" {user :user}
       (when user "see your workouts here"))
     (GET "/settings" {user :user}

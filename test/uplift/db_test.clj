@@ -10,9 +10,3 @@
      (try ~@body
        (finally
          (disconnect! *conn*)))))
-
-(deftest test-connection
-  (with-connection uri
-    (testing "Can add a workout"
-      (create-workout *conn* (now))
-      (is (= (day (now)) (:workout/day (get-workout *conn* (day (now)))))))))
