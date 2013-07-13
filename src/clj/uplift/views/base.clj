@@ -29,13 +29,16 @@
            [:link {:href "/public/css/print.css"
                    :media "print"
                    :rel "stylesheet"
-                   :type "text/css"}]]
+                   :type "text/css"}]
+           [:link {:href (str "//netdna.bootstrapcdn.com/"
+                              "font-awesome/3.2.1/css/font-awesome.css")
+                   :rel "stylesheet"}]]
           [:body
            [:div#outer-wrapper 
             [:div#header
              [:nav.top-bar.fixed
               [:ul.title-area
-               [:li.name [:h1 [:a {:href "/"} "Uplift"]]]]
+               [:li.name [:h1 [:a {:href "/"} [:i.icon-upload] " Uplift"]]]]
               [:section.top-bar-section
                [:ul.left
                 (map (partial make-top-link current) top-links)]]]]
