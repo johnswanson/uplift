@@ -39,6 +39,7 @@
  {:db/id #db/id[:db.part/db]
   :db/ident :activity/lifts
   :db/valueType :db.type/ref
+  :db/isComponent true
   :db/cardinality :db.cardinality/many
   :db/doc "An activity contains many lifts"
   :db.install/_attribute :db.part/db}
@@ -56,6 +57,7 @@
  {:db/id #db/id[:db.part/db]
   :db/ident :workout/activities
   :db/valueType :db.type/ref
+  :db/isComponent true
   :db/cardinality :db.cardinality/many
   :db/doc "A workout has many activities, like a 'squat' and a 'deadlift'"
   :db.install/_attribute :db.part/db}
