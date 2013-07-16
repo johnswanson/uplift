@@ -5,7 +5,8 @@
             [clojure.repl :refer :all]
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-            [uplift.system :as system]))
+            [uplift.system :as system]
+            [datomic.api :as d :refer [q db]]))
 
 (def system nil)
 

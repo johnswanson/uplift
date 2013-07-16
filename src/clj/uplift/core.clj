@@ -43,7 +43,7 @@
           (redirect-as user "/"))))
     (GET "/add" {user :user}
       (when user (add/get-page {:user user
-                                :activites (uplift.workout/user-workout
+                                :activities (uplift.workout/user-workout
                                              @db-conn
                                              user
                                              (now))})))

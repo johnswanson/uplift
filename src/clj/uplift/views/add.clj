@@ -6,27 +6,33 @@
 (declare lift)
 
 (defn exercise [[lift-type lifts]]
-  [:div.row [:div.small-12.columns [:h1.lift-type lift-type]
-   (map lift lifts)]])
+  [:div.exercise [:div.row [:div.small-12.columns [:h1.lift-type (name lift-type)]]]
+   (map lift lifts)
+   [:div.row
+    [:div.small-2.columns.small-offset-5
+     [:button.add-lift
+      [:i.icon-plus-sign]]]]])
 
 (defn weight-input
   ([] (weight-input ""))
-  ([value] [:input {:type "number"
-                    :min 0
-                    :step "5"
-                    :placeholder "weight"
-                    :value value}]))
+  ([value] [:input.add.weight
+            {:type "number"
+             :min 0
+             :step "5"
+             :placeholder "weight"
+             :value value}]))
 
 (defn reps-input
   ([] (reps-input ""))
-  ([value] [:input {:type "number"
-                    :min 1
-                    :placeholder "reps"
-                    :value value}]))
+  ([value] [:input.add.reps
+            {:type "number"
+             :min 1
+             :placeholder "reps"
+             :value value}]))
 
 (defn sets-input
   ([] (sets-input ""))
-  ([value] [:input
+  ([value] [:input.add.sets
             {:type "number"
              :min 1
              :placeholder "sets"
@@ -45,13 +51,16 @@
 
 (defn new-activity []
   [:div.row
-   [:div.small-6.columns.small-offset-3
-    [:input.lift-type {:type "text"
-                       :placeholder "Lift Name"}]]])
+   [:div.small-6.small-offset-3.columns
+    [:div.row.collapse
+     [:div.small-10.columns
+      [:input.lift-type {:type "text" :placeholder "Lift Name"}]]
+     [:div.small-2.columns
+      [:a.button.postfix.new-lift "New Lift"]]]]])
 
 (defn get-page [{:keys [user activities]}]
   (base/base {:content [:div
-                        (map exercise activities)
-                        (new-activity)]
+                        [:div#activities (map exercise activities)]
+                        [:div#new-activity (new-activity)]]
               :top-links (base/links-for user)
               :current "/add"}))

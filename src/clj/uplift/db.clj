@@ -1,9 +1,12 @@
 (ns uplift.db
   (:use [datomic.api :only [q db] :as d])
-  (:require [clj-time.core :as clj-time]
+  (:require [digest]
+            [clj-time.core :as clj-time]
             [clj-time.coerce :as coerce]
             [clj-time.format]
             [clj-bcrypt-wrapper.core :refer [encrypt check-password]]))
+
+(declare fn-maps)
 
 (defn setup-db
   "Used to set up the DB in system.clj"
@@ -23,3 +26,9 @@
     conn))
 
 (defn disconnect! [conn] (d/release conn))
+
+(defn make-ident
+  "Takes an arbitrary number of attrs and creates a unique id attr for them"
+  [& ids]
+  (digest/sha-256 (apply str ids)))
+

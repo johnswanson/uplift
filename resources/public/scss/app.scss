@@ -57,10 +57,14 @@ div#login-form {
   background-color: $darkest;
 }
 
-input.login, input.signup {
+input.login, input.signup, button.add-lift {
   @include button-base;
   @include button-size;
   @include button-style($darkest, 2px);
+}
+
+button.add-lift {
+  width: 100%;
 }
 
 span.error {
@@ -68,6 +72,10 @@ span.error {
   @include label-size("10px 20px");
   @include label-style($alert-color);
   display: block;
+}
+
+input.add {
+  font-size: 40px;
 }
 
 $footer-height: 150px;

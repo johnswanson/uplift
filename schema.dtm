@@ -27,21 +27,11 @@
   :db/doc "How much weight was lifted"
   :db.install/_attribute :db.part/db}
 
- ;; an activity contains many lifts and has a type
-
  {:db/id #db/id[:db.part/db]
-  :db/ident :activity/type
+  :db/ident :lift/type
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
-  :db/doc "An activity has a type, like 'squat' or 'deadlift'"
-  :db.install/_attribute :db.part/db}
-
- {:db/id #db/id[:db.part/db]
-  :db/ident :activity/lifts
-  :db/valueType :db.type/ref
-  :db/isComponent true
-  :db/cardinality :db.cardinality/many
-  :db/doc "An activity contains many lifts"
+  :db/doc "The type of the lift"
   :db.install/_attribute :db.part/db}
 
  ;; a day's workout
@@ -49,17 +39,24 @@
  {:db/id #db/id[:db.part/db]
   :db/ident :workout/day
   :db/valueType :db.type/long
-  :db/unique :db.unique/identity
   :db/cardinality :db.cardinality/one
   :db/doc "The date the workout was completed on"
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db]
-  :db/ident :workout/activities
+  :db/ident :workout/ident
+  :db/valueType :db.type/string
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one
+  :db/doc "The unique identity for a user-workout combo"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :workout/lifts
   :db/valueType :db.type/ref
   :db/isComponent true
   :db/cardinality :db.cardinality/many
-  :db/doc "A workout has many activities, like a 'squat' and a 'deadlift'"
+  :db/doc "A workout has many lifts"
   :db.install/_attribute :db.part/db}
 
  ;; defining a user's attributes
@@ -110,4 +107,5 @@
   :db/cardinality :db.cardinality/one
   :db/doc "A session can own a user (and probably does!)"
   :db.install/_attribute :db.part/db}
+
 ]

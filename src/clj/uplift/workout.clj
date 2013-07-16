@@ -1,6 +1,7 @@
 (ns uplift.workout
-  (:require [datomic.api :refer [q db] :as d])
-  (:require [clj-time.core :as clj-time]
+  (:require [datomic.api :refer [q db] :as d]
+            [uplift.db]
+            [clj-time.core :as clj-time]
             [clj-time.coerce :as coerce]
             [clj-time.format]))
 
@@ -17,16 +18,16 @@
 (defn get-all-workout
   "Gets all workout data in a seq, for a user's day"
   [conn user day]
+  {:pre [(number? day)]}
   (q '[:find ?activity-type ?lift ?weight ?reps ?sets
        :in $ ?user ?day
        :where [?user :user/workouts ?workout]
               [?workout :workout/day ?day]
-              [?workout :workout/activities ?activity]
-              [?activity :activity/type ?activity-type]
-              [?activity :activity/lifts ?lift]
+              [?workout :workout/lifts ?lift]
               [?lift :lift/weight ?weight]
               [?lift :lift/reps ?reps]
-              [?lift :lift/sets ?sets]]
+              [?lift :lift/sets ?sets]
+              [?lift :lift/type ?activity-type]]
      (db conn)
      (:db/id user)
      day))
@@ -50,3 +51,14 @@
 (defn from-longday
   "Convenience fn to convert Y-M-D back to clj-time"
   [l] (coerce/from-long l))
+
+(defn add-lift [conn user day l-type weight reps sets]
+  (d/transact conn [{:db/id #db/id[:workouts -1]
+                     :workout/ident (uplift.db/make-ident (:db/id user) l-type)
+                     :workout/day (to-longday day)
+                     :workout/lifts {:db/id #db/id[:workouts]
+                                     :lift/weight weight
+                                     :lift/reps reps
+                                     :lift/sets sets
+                                     :lift/type l-type}
+                     :user/_workouts (:db/id user)}]))

@@ -6668,7 +6668,7 @@ div#login-form {
 }
 
 /* line 60, ../scss/app.scss */
-input.login, input.signup {
+input.login, input.signup, button.add-lift {
   border-style: solid;
   border-width: 1px;
   cursor: pointer;
@@ -6692,15 +6692,20 @@ input.login, input.signup {
   border-radius: 2px;
 }
 /* line 123, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-4.2.2/scss/foundation/components/_buttons.scss */
-input.login:hover, input.login:focus, input.signup:hover, input.signup:focus {
+input.login:hover, input.login:focus, input.signup:hover, input.signup:focus, button.add-lift:hover, button.add-lift:focus {
   background-color: #1a1a1a;
 }
 /* line 134, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-4.2.2/scss/foundation/components/_buttons.scss */
-input.login:hover, input.login:focus, input.signup:hover, input.signup:focus {
+input.login:hover, input.login:focus, input.signup:hover, input.signup:focus, button.add-lift:hover, button.add-lift:focus {
   color: white;
 }
 
 /* line 66, ../scss/app.scss */
+button.add-lift {
+  width: 100%;
+}
+
+/* line 70, ../scss/app.scss */
 span.error {
   font-weight: bold;
   text-align: center;
@@ -6716,23 +6721,28 @@ span.error {
   display: block;
 }
 
-/* line 75, ../scss/app.scss */
+/* line 77, ../scss/app.scss */
+input.add {
+  font-size: 40px;
+}
+
+/* line 83, ../scss/app.scss */
 html, body {
   height: 100%;
 }
 
-/* line 77, ../scss/app.scss */
+/* line 85, ../scss/app.scss */
 #outer-wrapper {
   min-height: 100%;
 }
 
-/* line 79, ../scss/app.scss */
+/* line 87, ../scss/app.scss */
 #content {
   overflow: auto;
   padding-bottom: 300px;
 }
 
-/* line 83, ../scss/app.scss */
+/* line 91, ../scss/app.scss */
 #footer {
   position: relative;
   margin-top: -150px;
@@ -6746,7 +6756,7 @@ html, body {
 }
 
 /*Opera Fix*/
-/* line 94, ../scss/app.scss */
+/* line 102, ../scss/app.scss */
 body:before {
   content: "";
   height: 100%;
