@@ -3,17 +3,14 @@
             [uplift.views.login :as login]
             [uplift.views.signup :as signup]
             [uplift.views.add :as add]
-            [uplift.session]
-            [uplift.user]
-            [uplift.workout]
+            [uplift.storage.protocol :as storage]
             [compojure.core :refer [GET PUT POST DELETE ANY routes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.cookies :as cookies]
             [ring.middleware.session :as session]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
-            [clj-time.core :refer [now]]
-            [ring.server.standalone :refer [serve]]))
+            [clj-time.core :refer [now]]))
 
 (defn redirect [res url]
   (-> res
@@ -23,35 +20,13 @@
 (defn redirect-as [user url]
   (redirect {:session {:session/user user}} url))
 
-(defn create-handler* [db-conn]
+(defn create-handler* [store]
   (routes
     (resources "/public")
     (GET "/" {user :user} (index/get-page {:user user}))
     (GET "/signup" [] (signup/get-page nil))
-    (POST "/signup" [email password]
-      (let [[errors user] (uplift.user/signup @db-conn email password)]
-        (if errors
-          (signup/get-page {:form {:email email
-                                   :errors errors}})
-          (redirect-as user "/"))))
+    (POST "/signup" [email password] (str (storage/add-user @store email password)))
     (GET "/login" [] (login/get-page nil))
-    (POST "/login" [email password]
-      (let [[err user] (uplift.user/login @db-conn email password)]
-        (if err
-          (login/get-page {:form {:email email
-                                  :errors [err]}})
-          (redirect-as user "/"))))
-    (GET "/add" {user :user}
-      (when user (add/get-page {:user user
-                                :activities (uplift.workout/user-workout
-                                             @db-conn
-                                             user
-                                             (now))})))
-    (GET "/see" {user :user}
-      (when user "see your workouts here"))
-    (GET "/settings" {user :user}
-      (when user "change your settings here"))
-    (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
 (defn wrap-user [handler]
@@ -59,9 +34,9 @@
     (let [user (get-in req [:session :session/user])]
       (handler (assoc req :user user)))))
 
-(defn create-handler [db-conn]
-  (-> (create-handler* db-conn)
+(defn create-handler [store]
+  (-> (create-handler* store)
     (params/wrap-params)
     (wrap-user)
-    (session/wrap-session {:store (uplift.session/store db-conn)})
+    (session/wrap-session)
     (cookies/wrap-cookies)))

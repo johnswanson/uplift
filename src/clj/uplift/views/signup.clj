@@ -13,7 +13,7 @@
       (map (fn [err] [:span.error err]) errors)
       (label "email" "Email Address:")
       (email-field
-        {:placeholder "email@example.com" :autofocus true}
+        {:placeholder "email@example.com" :autofocus true :novalidate true}
         "email" email)
       (label "password" "Password: ")
       (password-field {:placeholder "secret password"} "password")

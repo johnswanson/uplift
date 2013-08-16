@@ -1,25 +1,37 @@
 (ns uplift.system
-  (:require [uplift.core]
-            [datomic.api :as d]
-            [uplift.db]
-            [ring.adapter.jetty :refer [run-jetty]]))
+  (:require [uplift.storage.protocol]
+            [uplift.core]
+            [ring.adapter.jetty :refer [run-jetty]])
+  (:import [uplift.storage.protocol MemoryStorage]))
+
+(defn initial-db []
+  {:next-id 0
+   :users {}})
+
+(defn load-db []
+  (if-let [data (try
+                  (read-string (slurp "data/data.dtm"))
+                  (catch Exception e nil))]
+    data
+    (initial-db)))
 
 (defn system []
-  (let [db (uplift.db/setup-db)
-        handler (uplift.core/create-handler (:conn db))]
-    {:db db
-     :server {:handler handler}}))
+  (let [storage (atom nil)
+        handler (uplift.core/create-handler storage)]
+    {:storage {:config {:type :memory}
+               :store storage}
+     :server {:handler handler
+              :server nil}}))
 
 (defn start!
   "Performs side effects to initialize the system, aquire resources, and start
   it running. Returns an updated instance of the system."
   [system]
-
-  (let [get-atom (partial get-in system)
-        server (run-jetty (get-in system [:server :handler])
+  (let [server (run-jetty (get-in system [:server :handler])
                           {:port 8080 :join? false})
-        conn (uplift.db/connect! (get-in system [:db :uri]))]
-    (reset! (get-atom [:db :conn]) conn)
+        store (case (get-in system [:storage :config :type])
+                :memory (new MemoryStorage (atom (load-db))))]
+    (reset! (get-in system [:storage :store]) store)
     (assoc-in system [:server :server] server)))
 
 (defn stop!
@@ -28,6 +40,5 @@
   [system]
 
   (.stop (get-in system [:server :server]))
-  (d/release @(get-in system [:db :conn]))
-  (reset! (get-in system [:db :conn]) nil)
+  (reset! (get-in system [:storage :store]) nil)
   (assoc-in system [:server :server] nil))

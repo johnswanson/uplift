@@ -6,6 +6,9 @@
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [uplift.system :as system]
+            [uplift.storage.protocol :as storage]
+            [uplift.core :as core]
+            [uplift.utils :as utils]
             [datomic.api :as d :refer [q db]]))
 
 (def system nil)
@@ -35,5 +38,3 @@
 (defn reset []
   (stop)
   (refresh :after 'user/go))
-
-(defn conn [] @(get-in (reset) [:db :conn]))
