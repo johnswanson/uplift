@@ -1,23 +1,13 @@
 (ns uplift.system
-  (:require [uplift.storage.protocol]
+  (:require [uplift.storage.protocol :as storage]
             [uplift.core]
             [ring.adapter.jetty :refer [run-jetty]])
   (:import [uplift.storage.protocol MemoryStorage]))
 
 
-(defn initial-db []
-  {:next-id 0
-   :users {}})
-
-(defn load-db []
-  (if-let [data (try
-                  (read-string (slurp "data/data.dtm"))
-                  (catch Exception e nil))]
-    data
-    (initial-db)))
-
 (defn default-config []
-  {:type :memory})
+  {:storage {:type :memory
+             :path "data/data.dtm"}})
 
 (defn config []
   (let [data (try
@@ -28,8 +18,8 @@
 (defn system []
   (let [storage (atom nil)
         handler (uplift.core/create-handler storage)]
-    {:storage {:config (config)
-               :store storage}
+    {:config (config)
+     :storage {:store storage}
      :server {:handler handler
               :server nil}}))
 
@@ -39,11 +29,14 @@
   [system]
   (let [server (run-jetty (get-in system [:server :handler])
                           {:port 8080 :join? false})
-        store (case (get-in system [:storage :config :type])
-                :memory (new MemoryStorage (atom (load-db)))
+        store (case (get-in system [:config :storage :type])
+                :memory (new MemoryStorage (atom nil))
                 nil)]
     (reset! (get-in system [:storage :store]) store)
-    (assoc-in system [:server :server] server)))
+    (-> system
+      (assoc-in [:storage :shutdown]
+                (storage/init! store (get-in system [:config :storage])))
+      (assoc-in [:server :server] server))))
 
 (defn stop!
   "Performs side effects to shut down the system and release its resources.
@@ -52,4 +45,6 @@
 
   (.stop (get-in system [:server :server]))
   (reset! (get-in system [:storage :store]) nil)
-  (assoc-in system [:server :server] nil))
+  (-> system
+    (assoc-in [:server :server] nil)
+    (assoc-in [:storage :shutdown] nil)))
