@@ -2,6 +2,8 @@
 /lib
 /classes
 /checkouts
+config.clj
+/data/data.dtm
 pom.xml
 pom.xml.asc
 *.jar
