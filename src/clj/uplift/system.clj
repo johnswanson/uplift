@@ -4,6 +4,7 @@
             [ring.adapter.jetty :refer [run-jetty]])
   (:import [uplift.storage.protocol MemoryStorage]))
 
+
 (defn initial-db []
   {:next-id 0
    :users {}})
@@ -15,10 +16,19 @@
     data
     (initial-db)))
 
+(defn default-config []
+  {:type :memory})
+
+(defn config []
+  (let [data (try
+               (read-string (slurp "config.clj"))
+               (catch Exception e nil))]
+    (merge data (default-config))))
+
 (defn system []
   (let [storage (atom nil)
         handler (uplift.core/create-handler storage)]
-    {:storage {:config {:type :memory}
+    {:storage {:config (config)
                :store storage}
      :server {:handler handler
               :server nil}}))
@@ -30,7 +40,8 @@
   (let [server (run-jetty (get-in system [:server :handler])
                           {:port 8080 :join? false})
         store (case (get-in system [:storage :config :type])
-                :memory (new MemoryStorage (atom (load-db))))]
+                :memory (new MemoryStorage (atom (load-db)))
+                nil)]
     (reset! (get-in system [:storage :store]) store)
     (assoc-in system [:server :server] server)))
 
