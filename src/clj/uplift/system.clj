@@ -7,19 +7,20 @@
 
 (defn default-config []
   {:storage {:type :memory
-             :path "data/data.dtm"}})
+             :path "data/data.dtm"}
+   :server {:port 8080 :join? false}})
 
-(defn config []
+(defn config [& args]
   (let [data (try
                (read-string (slurp "config.clj"))
                (catch Exception e nil))]
-    (merge data (default-config))))
+    (-> (merge-with merge (default-config) data)
+      (get-in args))))
 
 (defn system []
   (let [storage (atom nil)
         handler (uplift.core/create-handler storage)]
-    {:config (config)
-     :storage {:store storage}
+    {:storage {:store storage}
      :server {:handler handler
               :server nil}}))
 
@@ -28,14 +29,14 @@
   it running. Returns an updated instance of the system."
   [system]
   (let [server (run-jetty (get-in system [:server :handler])
-                          {:port 8080 :join? false})
-        store (case (get-in system [:config :storage :type])
+                          (config :server))
+        store (case (config :storage :type)
                 :memory (new MemoryStorage (atom nil))
                 nil)]
     (reset! (get-in system [:storage :store]) store)
     (-> system
       (assoc-in [:storage :shutdown]
-                (storage/init! store (get-in system [:config :storage])))
+                (storage/init! store (config :storage)))
       (assoc-in [:server :server] server))))
 
 (defn stop!
