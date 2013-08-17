@@ -53,5 +53,5 @@
   (-> (create-handler* store)
     (params/wrap-params)
     (wrap-user)
-    (session/wrap-session)
+    (session/wrap-session {:store (storage/session-store store)})
     (cookies/wrap-cookies)))

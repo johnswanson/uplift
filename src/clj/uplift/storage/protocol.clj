@@ -2,7 +2,9 @@
   (:import java.util.concurrent.TimeUnit
            java.util.concurrent.Executors)
   (:require [clojure.java.io :refer [writer reader]]
-            [clj-bcrypt-wrapper.core :refer [encrypt check-password]]))
+            [clj-bcrypt-wrapper.core :refer [encrypt check-password]]
+            [ring.middleware.session.store :refer [SessionStore]]
+            [uplift.utils :as utils]))
 
 (defprotocol Storage
   (init! [this config] "Performs any side effects necessary to initialize the
@@ -11,10 +13,14 @@
   (add-user [this username password])
   (get-user [this username])
   (check-pw [this username password])
-  (change-password [this user new-password]))
+  (change-password [this user new-password])
+  (read-session' [this key])
+  (write-session' [this key data])
+  (delete-session' [this key]))
 
 (defn blank-memory []
   {:next-id 0
+   :sessions {}
    :users {}})
 
 (defrecord MemoryStorage [db]
@@ -64,4 +70,24 @@
 
   (change-password [_ {id :id} password]
     (swap! db (fn [db]
-                (assoc-in db [:users id :password] (encrypt password))))))
+                (assoc-in db [:users id :password] (encrypt password)))))
+
+  (read-session' [_ key]
+    (get-in @db [:sessions key]))
+
+  (write-session' [_ key data]
+    (let [key (or key (utils/rand-str 30))]
+      (swap! db assoc-in [:sessions key] data)
+      key))
+
+  (delete-session' [_ key]
+    (swap! db dissoc :sessions key)))
+
+(deftype OurSession [store]
+  SessionStore
+  (read-session [_ key] (read-session' @store key))
+  (write-session [_ key data] (write-session' @store key data))
+  (delete-session [_ key] (delete-session' @store key)))
+
+(defn session-store [s]
+  (new OurSession s))
