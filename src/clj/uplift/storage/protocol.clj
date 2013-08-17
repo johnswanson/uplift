@@ -25,14 +25,16 @@
 
 (defrecord MemoryStorage [db]
   Storage
-  (init! [_ {path :path}]
-    (let [persist-db (fn [] (spit path (str @db)))
+  (init! [_ {:keys [path to-disk?]}]
+    (let [persist-db (fn [] (when to-disk? (spit path (str @db))))
           read-db (fn [] (read-string (slurp path)))]
-      (try
-        (reset! db (read-db))
-        (catch java.io.IOException ioe
-          (println "Database" path "not found, using test data")
-          (reset! db (blank-memory))))
+      (if to-disk?
+        (try
+          (reset! db (read-db))
+          (catch java.io.IOException ioe
+            (println "Database" path "not found, using test data")
+            (reset! db (blank-memory))))
+        (reset! db (blank-memory)))
       (let [shutdown-thread (Thread. persist-db)
             shutdown-hook (..
                             Runtime
