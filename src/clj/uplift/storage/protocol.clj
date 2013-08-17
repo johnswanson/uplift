@@ -6,10 +6,8 @@
 
 (defprotocol Storage
   (init! [this config] "Performs any side effects necessary to initialize the
-                       storage medium.")
-  (shut! [this config] "Performs any side effects necessary to close the
-                       storage medium. Should be called with the result of
-                       init!")
+                       storage medium. Returns a function that reverses these
+                       side effects and closes the storage medium.")
   (add-user [this username password])
   (get-user [this username])
   (check-pw [this username password])
@@ -34,17 +32,16 @@
                             Runtime
                             getRuntime
                             (addShutdownHook shutdown-thread))
+            thread-pool (Executors/newScheduledThreadPool 1)
             scheduled-exec (.
-                            (Executors/newScheduledThreadPool 1)
+                            thread-pool
                             (scheduleAtFixedRate persist-db
                                                  (long 1)
                                                  (long 1)
                                                  (. TimeUnit MINUTES)))]
-        [shutdown-thread scheduled-exec])))
-
-  (shut! [_ [shutdown-thread scheduled-exec]]
-    (.cancel scheduled-exec)
-    (.. Runtime getRuntime (removeShutdownHook shutdown-thread)))
+        #(do (.shutdown thread-pool)
+             (.. Runtime getRuntime (removeShutdownHook shutdown-thread))
+             (persist-db)))))
 
   (add-user [_ username password]
     (let [next-id (:next-id @db)

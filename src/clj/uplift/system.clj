@@ -44,6 +44,7 @@
   [system]
 
   (.stop (get-in system [:server :server]))
+  ((get-in system [:storage :shutdown]))
   (reset! (get-in system [:storage :store]) nil)
   (-> system
     (assoc-in [:server :server] nil)
