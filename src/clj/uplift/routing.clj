@@ -19,7 +19,7 @@
     (assoc :status 302)))
 
 (defn redirect-as [user url]
-  (redirect {:session {:session/user user}} url))
+  (redirect {:session {:session/user-id (:id user)}} url))
 
 (defn signup [store email password]
   (let [{:keys [result errors]} (user/signup store email password)]
@@ -46,14 +46,14 @@
     (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
-(defn wrap-user [handler]
+(defn wrap-user [handler store]
   (fn [req]
-    (let [user (get-in req [:session :session/user])]
+    (let [user (user/by-id store (get-in req [:session :session/user-id]))]
       (handler (assoc req :user user)))))
 
 (defn create-handler [store]
   (-> (create-handler* store)
     (params/wrap-params)
-    (wrap-user)
+    (wrap-user store)
     (session/wrap-session {:store (storage/session-store store)})
     (cookies/wrap-cookies)))

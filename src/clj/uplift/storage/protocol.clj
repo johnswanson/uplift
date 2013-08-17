@@ -12,16 +12,23 @@
                        side effects and closes the storage medium.")
   (add-user [this username password])
   (get-user [this username])
+  (get-user-by-id [this id])
   (check-pw [this username password])
   (change-password [this user new-password])
   (read-session' [this key])
   (write-session' [this key data])
   (delete-session' [this key]))
 
-(defn blank-memory []
+(defn memory-blank-db []
   {:next-id 0
    :sessions {}
    :users {}})
+
+(defn memory-empty-user [id username password]
+  {:id id
+   :username username
+   :password (encrypt password)
+   :workouts {}})
 
 (defrecord MemoryStorage [db]
   Storage
@@ -33,8 +40,8 @@
           (reset! db (read-db))
           (catch java.io.IOException ioe
             (println "Database" path "not found, using test data")
-            (reset! db (blank-memory))))
-        (reset! db (blank-memory)))
+            (reset! db (memory-blank-db))))
+        (reset! db (memory-blank-db)))
       (let [shutdown-thread (Thread. persist-db)
             shutdown-hook (..
                             Runtime
@@ -52,20 +59,21 @@
              (persist-db)))))
 
   (add-user [_ username password]
-    (let [next-id (:next-id @db)
-          user {:id next-id
-                :username username
-                :password (encrypt password)}]
+    (let [id (:next-id @db)
+          user (memory-empty-user id username password)]
       (swap! db (fn [db]
                   (-> db
-                    (assoc :next-id (inc next-id))
-                    (assoc-in [:users next-id] user))))
+                    (assoc :next-id (inc id))
+                    (assoc-in [:users id] user))))
       user))
 
   (get-user [_ username]
     (->> (map val (:users @db))
       (filter #(= (:username %) username))
       (first)))
+
+  (get-user-by-id [_ id]
+    (get-in @db [:users id]))
 
   (check-pw [this {old-pw :password} password]
     (check-password password old-pw))

@@ -15,3 +15,6 @@
        :errors nil}
       {:result nil
        :errors ["The username or password provided was incorrect."]})))
+
+(defn by-id [store id]
+  (storage/get-user-by-id @store id))
