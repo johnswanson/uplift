@@ -4,7 +4,6 @@
             [ring.adapter.jetty :refer [run-jetty]])
   (:import [uplift.storage.protocol MemoryStorage]))
 
-
 (defn default-config []
   {:storage {:type :memory
              :path "data/data.dtm"}

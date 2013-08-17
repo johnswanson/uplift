@@ -1,7 +1,8 @@
 (ns uplift.storage.protocol
   (:import java.util.concurrent.TimeUnit
            java.util.concurrent.Executors)
-  (:require [clojure.java.io :refer [writer reader]]))
+  (:require [clojure.java.io :refer [writer reader]]
+            [clj-bcrypt-wrapper.core :refer [encrypt check-password]]))
 
 (defprotocol Storage
   (init! [this config] "Performs any side effects necessary to initialize the
@@ -11,6 +12,7 @@
                        init!")
   (add-user [this username password])
   (get-user [this username])
+  (check-pw [this username password])
   (change-password [this user new-password]))
 
 (defn blank-memory []
@@ -48,7 +50,7 @@
     (let [next-id (:next-id @db)
           user {:id next-id
                 :username username
-                :password password}]
+                :password (encrypt password)}]
       (swap! db (fn [db]
                   (-> db
                     (assoc :next-id (inc next-id))
@@ -60,6 +62,9 @@
       (filter #(= (:username %) username))
       (first)))
 
+  (check-pw [this {old-pw :password} password]
+    (check-password password old-pw))
+
   (change-password [_ {id :id} password]
     (swap! db (fn [db]
-                (assoc-in db [:users id :password] password)))))
+                (assoc-in db [:users id :password] (encrypt password))))))

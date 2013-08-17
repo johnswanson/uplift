@@ -4,6 +4,7 @@
             [uplift.views.signup :as signup]
             [uplift.views.add :as add]
             [uplift.storage.protocol :as storage]
+            [uplift.user :as user]
             [compojure.core :refer [GET PUT POST DELETE ANY routes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.cookies :as cookies]
@@ -20,13 +21,27 @@
 (defn redirect-as [user url]
   (redirect {:session {:session/user user}} url))
 
+(defn signup [store email password]
+  (let [{:keys [result errors]} (user/signup store email password)]
+    (if result
+      (redirect-as result "/")
+      "bad creds fren.")))
+
+(defn login [store email password]
+  (let [{:keys [result errors]} (user/login store email password)]
+    (if result
+      (redirect-as result "/")
+      "bad creds fren.")))
+
 (defn create-handler* [store]
   (routes
     (resources "/public")
-    (GET "/" {user :user} (index/get-page {:user user}))
-    (GET "/signup" [] (signup/get-page nil))
-    (POST "/signup" [email password] (str (storage/add-user @store email password)))
-    (GET "/login" [] (login/get-page nil))
+    (GET "/" {user :user} index/get-page)
+    (GET "/signup" [] signup/get-page)
+    (GET "/login" [] login/get-page)
+    (POST "/signup" [email password] (signup store email password))
+    (POST "/login" [email password] (login store email password))
+    (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
 (defn wrap-user [handler]
