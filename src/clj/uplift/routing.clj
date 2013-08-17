@@ -1,4 +1,4 @@
-(ns uplift.core
+(ns uplift.routing
   (:require [uplift.views.index :as index]
             [uplift.views.login :as login]
             [uplift.views.signup :as signup]

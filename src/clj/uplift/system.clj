@@ -1,6 +1,6 @@
 (ns uplift.system
   (:require [uplift.storage.protocol :as storage]
-            [uplift.core]
+            [uplift.routing]
             [ring.adapter.jetty :refer [run-jetty]])
   (:import [uplift.storage.protocol MemoryStorage]))
 
@@ -18,7 +18,7 @@
 
 (defn system []
   (let [storage (atom nil)
-        handler (uplift.core/create-handler storage)]
+        handler (uplift.routing/create-handler storage)]
     {:storage {:store storage}
      :server {:handler handler
               :server nil}}))

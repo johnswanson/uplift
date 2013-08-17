@@ -7,7 +7,7 @@
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [uplift.system :as system]
             [uplift.storage.protocol :as storage]
-            [uplift.core :as core]
+            [uplift.routing :as routing]
             [uplift.utils :as utils]
             [datomic.api :as d :refer [q db]]))
 

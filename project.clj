@@ -11,7 +11,7 @@
                         :compiler {:output-to "resources/public/js/uplift.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}]}
-  :ring {:handler uplift.core/app :port 8080 :auto-refresh? true}
+  :ring {:handler uplift.routing/app :port 8080 :auto-refresh? true}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"] ; clojure itself
