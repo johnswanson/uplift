@@ -25,13 +25,15 @@
   (let [{:keys [result errors]} (user/signup store email password)]
     (if result
       (redirect-as result "/")
-      "bad creds fren.")))
+      (signup/get-page {:form {:email email
+                               :errors errors}}))))
 
 (defn login [store email password]
   (let [{:keys [result errors]} (user/login store email password)]
     (if result
       (redirect-as result "/")
-      "bad creds fren.")))
+      (login/get-page {:form {:email email
+                              :errors errors}}))))
 
 (defn create-handler* [store]
   (routes
