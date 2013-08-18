@@ -20,7 +20,9 @@
     (assoc :status 302)))
 
 (defn redirect-as [user url]
-  (redirect {:session {:session/user-id (:id user)}} url))
+  (if user
+    (redirect {:session {:session/user-id (:id user)}} url)
+    (redirect {:session {}} url)))
 
 (defn signup [store email password]
   (let [{:keys [result errors]} (user/signup store email password)]
