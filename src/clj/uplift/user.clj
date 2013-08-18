@@ -18,3 +18,11 @@
 
 (defn by-id [store id]
   (storage/get-user-by-id @store id))
+
+(defn add-workout [store user workout]
+  (storage/add-workout @store user (->> workout
+                                     (map (fn [[k v]] [(keyword k) v]))
+                                     (into {}))))
+
+(defn workouts [store user]
+  (storage/get-workouts @store user))

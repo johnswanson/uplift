@@ -15,6 +15,10 @@
   (get-user-by-id [this id])
   (check-pw [this username password])
   (change-password [this user new-password])
+
+  (add-workout [this user workout])
+  (get-workouts [this user])
+
   (read-session' [this key])
   (write-session' [this key data])
   (delete-session' [this key]))
@@ -81,6 +85,18 @@
   (change-password [_ {id :id} password]
     (swap! db (fn [db]
                 (assoc-in db [:users id :password] (encrypt password)))))
+
+  (add-workout [_ user workout]
+    (swap! db (fn [db]
+                (let [id (:next-id db)
+                      workout (assoc workout :id id)]
+                  (-> db
+                    (assoc :next-id (inc id))
+                    (assoc-in [:users (:id user) :workouts id] workout))))))
+
+  (get-workouts [_ user]
+    (get-in @db [:users (:id user) :workouts]))
+
 
   (read-session' [_ key]
     (get-in @db [:sessions key]))

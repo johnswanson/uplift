@@ -38,11 +38,14 @@
 (defn create-handler* [store]
   (routes
     (resources "/public")
-    (GET "/" {user :user} index/get-page)
+    (GET "/" [] index/get-page)
     (GET "/signup" [] signup/get-page)
     (GET "/login" [] login/get-page)
     (POST "/signup" [email password] (signup store email password))
     (POST "/login" [email password] (login store email password))
+    (GET "/see" {user :user} (user/workouts store user))
+    (POST "/add" {:keys [user params]}
+      (user/add-workout store user params))
     (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
