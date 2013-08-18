@@ -40,14 +40,17 @@
 (defn by-id [store id]
   (storage/get-user-by-id @store id))
 
-(defn add-workout [store user {:keys [type date weight reps sets] :as workout}]
-  (if (and type date weight reps sets)
-    (do
-      (storage/add-workout @store user workout)
-      {:result true
-       :errors []})
-    {:result nil
-     :errors ["Invalid workout info"]}))
+(defn add-workout [store user params]
+  (let [add-workout (partial storage/add-workout @store user)
+        form (form
+               {}
+               :type [non-blank]
+               :date [non-blank]
+               :weight [non-blank]
+               :reps [non-blank]
+               :sets [non-blank]
+               :red-tape/form [add-workout])]
+    (form params)))
 
 (defn workouts [store user]
   (storage/get-workouts @store user))

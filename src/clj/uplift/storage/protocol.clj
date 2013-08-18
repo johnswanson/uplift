@@ -92,7 +92,8 @@
                       workout (assoc workout :id id)]
                   (-> db
                     (assoc :next-id (inc id))
-                    (assoc-in [:users (:id user) :workouts id] workout))))))
+                    (assoc-in [:users (:id user) :workouts id] workout)))))
+    (get-in @db [:users (:id user) :workouts]))
 
   (get-workouts [_ user]
     (get-in @db [:users (:id user) :workouts]))
