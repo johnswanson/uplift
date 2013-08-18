@@ -18,6 +18,9 @@
 
                  [fogus/ring-edn "0.1.0"]
 
+                 [red-tape "1.0.0"]
+                 [slingshot "0.10.3"]
+
                  [prismatic/plumbing "0.1.0"]
 
                  [digest "1.3.0"]

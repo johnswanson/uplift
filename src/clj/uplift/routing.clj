@@ -24,19 +24,21 @@
     (redirect {:session {:session/user-id (:id user)}} url)
     (redirect {:session {}} url)))
 
-(defn signup [store email password]
-  (let [{:keys [result errors]} (user/signup store email password)]
-    (if result
-      (redirect-as result "/")
-      (signup/get-page {:form {:email email
-                               :errors errors}}))))
+(defn signup [store params]
+  (let [{{user :user} :results
+         :keys [valid errors data]} (user/signup store params)]
+    (if valid
+      (redirect-as user "/")
+      (signup/get-page {:form {:email (get data "email")
+                               :errors (map val errors)}}))))
 
-(defn login [store email password]
-  (let [{:keys [result errors]} (user/login store email password)]
-    (if result
-      (redirect-as result "/")
-      (login/get-page {:form {:email email
-                              :errors errors}}))))
+(defn login [store params]
+  (let [{{user :user} :results
+         :keys [valid errors data]} (user/login store params)]
+    (if valid
+      (redirect-as user "/")
+      (login/get-page {:form {:email (get data "email")
+                              :errors (map val errors)}}))))
 
 (defn create-handler* [store]
   (routes
@@ -44,8 +46,8 @@
     (GET "/" [] index/get-page)
     (GET "/signup" [] signup/get-page)
     (GET "/login" [] login/get-page)
-    (POST "/signup" [email password] (signup store email password))
-    (POST "/login" [email password] (login store email password))
+    (POST "/signup" {params :params} (signup store params))
+    (POST "/login" {params :params} (login store params))
     (GET "/see" {user :user} (user/workouts store user))
     (POST "/add" {:keys [user params]}
       (user/add-workout store user params))
