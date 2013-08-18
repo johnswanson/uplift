@@ -10,6 +10,7 @@
             [ring.middleware.cookies :as cookies]
             [ring.middleware.session :as session]
             [ring.middleware.params :as params]
+            [ring.middleware.edn :as edn-middleware]
             [ring.util.response :as response]
             [clj-time.core :refer [now]]))
 
@@ -57,6 +58,7 @@
 (defn create-handler [store]
   (-> (create-handler* store)
     (params/wrap-params)
+    (edn-middleware/wrap-edn-params)
     (wrap-user store)
     (session/wrap-session {:store (storage/session-store store)})
     (cookies/wrap-cookies)))

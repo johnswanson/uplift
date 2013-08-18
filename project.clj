@@ -16,6 +16,8 @@
   :dependencies [[org.clojure/clojure "1.5.1"] ; clojure itself
                  [org.clojure/tools.namespace "0.2.3"]
 
+                 [fogus/ring-edn "0.1.0"]
+
                  [prismatic/plumbing "0.1.0"]
 
                  [digest "1.3.0"]
