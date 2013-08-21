@@ -12,7 +12,7 @@
             [ring.middleware.params :as params]
             [ring.middleware.edn :as edn-middleware]
             [ring.util.response :as response]
-            [clj-time.core :refer [now]]))
+            [clj-time.core :refer [today local-date]]))
 
 (defn redirect [res url]
   (-> res
@@ -48,7 +48,12 @@
     (GET "/login" [] login/get-page)
     (POST "/signup" {params :params} (signup store params))
     (POST "/login" {params :params} (login store params))
-    (GET "/see" {user :user} (user/workouts store user))
+    (GET "/see" {user :user {:strs [date type start-date end-date]} :params}
+      (user/workouts store user {:date date
+                                 :type type
+                                 :start-date start-date
+                                 :end-date end-date}))
+    (GET "/add" [] add/get-page)
     (POST "/add" {:keys [user params]}
       (user/add-workout store user params))
     (GET "/logout" [] (redirect-as nil "/"))

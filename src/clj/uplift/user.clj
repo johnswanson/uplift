@@ -1,8 +1,10 @@
 (ns uplift.user
   (:require [uplift.storage.protocol :as storage]
+            [uplift.utils :as utils]
             [red-tape.core :refer [form]]
             [slingshot.slingshot :refer [throw+]]
-            [red-tape.cleaners :refer [non-blank]]))
+            [red-tape.cleaners :refer [non-blank]]
+            [clj-time.core :as clj-time]))
 
 (defn signup [store params]
   (let [non-existent (fn [data]
@@ -45,12 +47,24 @@
         form (form
                {}
                :type [non-blank]
-               :date [non-blank]
+               :date [#(if (re-matches #"\d{4}-\d{2}-\d{2}" %)
+                         %
+                         (throw+ "Invalid format"))]
                :weight [non-blank]
                :reps [non-blank]
                :sets [non-blank]
                :red-tape/form [add-workout])]
     (form params)))
 
-(defn workouts [store user]
-  (storage/get-workouts @store user))
+(defn workouts
+  ([store user] (workouts store user {}))
+  ([store user {:keys [date type start-date end-date]}]
+   (filter (fn [{w-date :date w-type :type}]
+             (and (if date (= w-date date) true)
+                  (if type (= w-type type) true)
+                  (if start-date (clj-time/after? (utils/date w-date)
+                                                  (utils/date start-date)) true)
+                  (if end-date (clj-time/before? (utils/date w-date)
+                                                 (utils/date end-date)) true)))
+           (storage/get-workouts @store user))))
+

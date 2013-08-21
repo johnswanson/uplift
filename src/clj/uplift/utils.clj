@@ -1,5 +1,6 @@
 (ns uplift.utils
-  (:require [compojure.core]))
+  (:require [compojure.core]
+            [clj-time.core :refer [local-date]]))
 
 (defn wrap-check-user [handler u-type]
   (fn [{{r-type :type} :user :as req}]
@@ -20,3 +21,15 @@
 (def cs (map char (concat (range 48 58) (range 66 92) (range 97 123))))
 (defn rand-char [] (nth cs (.nextInt (java.util.Random.) (count cs))))
 (defn rand-str [n] (apply str (take n (repeatedly rand-char))))
+
+(defn parse-int [s] (Integer. s))
+
+(defn date [s]
+  (->> s
+    (re-matches #"(\d{4})-(\d{1,2})-(\d{1,2})")
+    (next)
+    (map parse-int)
+    (#(if (seq %)
+        (try (apply local-date %)
+            (catch Exception e nil))
+        nil))))

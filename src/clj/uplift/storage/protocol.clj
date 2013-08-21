@@ -96,8 +96,7 @@
     (get-in @db [:users (:id user) :workouts]))
 
   (get-workouts [_ user]
-    (get-in @db [:users (:id user) :workouts]))
-
+    (vals (get-in @db [:users (:id user) :workouts])))
 
   (read-session' [_ key]
     (get-in @db [:sessions key]))
