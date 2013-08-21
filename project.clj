@@ -15,6 +15,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"] ; clojure itself
                  [org.clojure/tools.namespace "0.2.3"]
+                 [core.async "0.1.0-SNAPSHOT"]
 
                  [fogus/ring-edn "0.1.0"]
 
