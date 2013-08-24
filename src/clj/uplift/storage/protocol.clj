@@ -26,13 +26,13 @@
 (defn memory-blank-db []
   {:next-id 0
    :sessions {}
-   :users {}})
+   :users {}
+   :workouts {}})
 
 (defn memory-empty-user [id username password]
   {:id id
    :username username
-   :password (encrypt password)
-   :workouts {}})
+   :password (encrypt password)})
 
 (defrecord MemoryStorage [db]
   Storage
@@ -62,14 +62,16 @@
              (.. Runtime getRuntime (removeShutdownHook shutdown-thread))
              (persist-db)))))
 
-  (add-user [_ username password]
-    (let [id (:next-id @db)
-          user (memory-empty-user id username password)]
+  (add-user [this username password]
+    (let [id-a (atom nil)]
       (swap! db (fn [db]
-                  (-> db
-                    (assoc :next-id (inc id))
-                    (assoc-in [:users id] user))))
-      user))
+                  (let [id (:next-id db)
+                        user (memory-empty-user id username password)]
+                    (reset! id-a id)
+                    (-> db
+                      (assoc :next-id (inc id))
+                      (assoc-in [:users id] user)))))
+      (get-user-by-id this @id-a)))
 
   (get-user [_ username]
     (->> (map val (:users @db))
@@ -87,16 +89,21 @@
                 (assoc-in db [:users id :password] (encrypt password)))))
 
   (add-workout [_ user workout]
-    (swap! db (fn [db]
-                (let [id (:next-id db)
-                      workout (assoc workout :id id)]
-                  (-> db
-                    (assoc :next-id (inc id))
-                    (assoc-in [:users (:id user) :workouts id] workout)))))
-    (get-in @db [:users (:id user) :workouts]))
+    (let [id-a (atom nil)]
+      (swap! db (fn [db]
+                  (let [id (:next-id db)
+                        workout (assoc workout :id id)]
+                    (reset! id-a id)
+                    (-> db
+                      (assoc :next-id (inc id))
+                      (update-in [:users (:id user) :workouts] conj id)
+                      (update-in [:workouts] assoc id workout)))))
+      (get-in @db [:workouts @id-a])))
 
   (get-workouts [_ user]
-    (vals (get-in @db [:users (:id user) :workouts])))
+    (let [db @db]
+      (->> (get-in db [:users (:id user) :workouts])
+        (map #(get-in db [:workouts %])))))
 
   (read-session' [_ key]
     (get-in @db [:sessions key]))
