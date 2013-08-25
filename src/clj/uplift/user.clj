@@ -26,20 +26,20 @@
       [:success (storage/add-user @store email password)]
       [:failure errors])))
 
-(defn login [store params]
-  (let [check-pass (fn [data]
-                     (let [user (storage/get-user @store (:email data))]
-                       (if (and user (storage/check-pw @store
-                                                       user
-                                                       (:password data)))
-                         (assoc data :user user)
-                         (throw+ "No such user"))))
-        form (form
-               {}
-               :email [non-blank]
-               :password [non-blank]
-               :red-tape/form check-pass)]
-    (form params)))
+(defn login [store {:as params' :keys [email password]}]
+  (let [params (assoc params' :both [email password])
+        requirements {:email [(complement empty?)
+                              "You must enter an email address"]
+                      :password [(complement empty?)
+                                 "You must enter a password"]
+                      :both [(fn [[e p]]
+                               (when-let [user (storage/get-user @store e)]
+                                 (storage/check-pw @store user p)))
+                             "Incorrect email or password"]}
+        errors (check requirements params)]
+    (if (empty? errors)
+      [:success (storage/get-user @store email)]
+      [:failure errors])))
 
 (defn by-id [store id]
   (storage/get-user-by-id @store id))

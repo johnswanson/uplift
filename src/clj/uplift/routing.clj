@@ -28,16 +28,15 @@
   (let [[status resp] (user/signup store params)]
     (case status
       :success (redirect-as resp "/")
-      :failure (signup/get-page {:form {:email (get params "email")
+      :failure (signup/get-page {:form {:email (:email params)
                                         :errors (map val resp)}}))))
 
 (defn login [store params]
-  (let [{{user :user} :results
-         :keys [valid errors data]} (user/login store params)]
-    (if valid
-      (redirect-as user "/")
-      (login/get-page {:form {:email (get data "email")
-                              :errors (map val errors)}}))))
+  (let [[status resp] (user/login store params)]
+    (case status
+      :success (redirect-as resp "/")
+      :failure (login/get-page {:form {:email (:email params)
+                                       :errors (map val resp)}}))))
 
 (defn add-workout [store user params]
   (let [result (user/add-workout store user params)]
