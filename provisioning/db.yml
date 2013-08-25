@@ -1,6 +1,0 @@
----
-- hosts: db
-  sudo: yes
-  roles:
-    - common
-    - db
