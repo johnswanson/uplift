@@ -2,27 +2,29 @@
   (:require [uplift.storage.protocol :as storage]
             [uplift.utils :as utils]
             [red-tape.core :refer [form]]
-            [slingshot.slingshot :refer [throw+]]
             [red-tape.cleaners :refer [non-blank]]
+            [slingshot.slingshot :refer [throw+]]
             [clj-time.core :as clj-time]))
 
-(defn signup [store params]
-  (let [non-existent (fn [data]
-                       (if (storage/get-user @store (:email data))
-                         (throw+ "A user exists with that email address")
-                         data))
-        signup (fn [data]
-                 (-> data
-                   (assoc :user
-                          (storage/add-user @store
-                                            (:email data)
-                                            (:password data)))))
-        form (form
-               {}
-               :email [non-blank]
-               :password [non-blank]
-               :red-tape/form [non-existent signup])]
-    (form params)))
+(defn check [requirements values]
+  (apply merge-with concat
+         (for [[keyname functions] requirements
+               [f response] (partition 2 functions)
+               :let [value (keyname values)]]
+           (if (f value) nil {keyname response}))))
+
+(defn signup [store {:keys [email password] :as params}]
+  (let [requirements {:email [(complement empty?)
+                              "You must enter an email address"
+                              (complement (partial storage/get-user @store))
+                              "The email address you entered is already
+                              associated with an account."]
+                      :password [(complement empty?)
+                                 "You must enter a password"]}
+        errors (check requirements params)]
+    (if (empty? errors)
+      [:success (storage/add-user @store email password)]
+      [:failure errors])))
 
 (defn login [store params]
   (let [check-pass (fn [data]

@@ -25,12 +25,11 @@
     (redirect {:session {}} url)))
 
 (defn signup [store params]
-  (let [{{user :user} :results
-         :keys [valid errors data]} (user/signup store params)]
-    (if valid
-      (redirect-as user "/")
-      (signup/get-page {:form {:email (get data "email")
-                               :errors (map val errors)}}))))
+  (let [[status resp] (user/signup store params)]
+    (case status
+      :success (redirect-as resp "/")
+      :failure (signup/get-page {:form {:email (get params "email")
+                                        :errors (map val resp)}}))))
 
 (defn login [store params]
   (let [{{user :user} :results
