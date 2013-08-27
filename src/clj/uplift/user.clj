@@ -1,62 +1,44 @@
 (ns uplift.user
   (:require [uplift.storage.protocol :as storage]
             [uplift.utils :as utils]
-            [red-tape.core :refer [form]]
-            [red-tape.cleaners :refer [non-blank]]
+            [uplift.checker :as checker]
             [slingshot.slingshot :refer [throw+]]
             [clj-time.core :as clj-time]))
 
-(defn check [requirements values]
-  (apply merge-with concat
-         (for [[keyname functions] requirements
-               [f response] (partition 2 functions)
-               :let [value (keyname values)]]
-           (if (f value) nil {keyname response}))))
-
-(defn signup [store {:keys [email password] :as params}]
-  (let [requirements {:email [(complement empty?)
-                              "You must enter an email address"
-                              (complement (partial storage/get-user @store))
-                              "The email address you entered is already
-                              associated with an account."]
-                      :password [(complement empty?)
-                                 "You must enter a password"]}
-        errors (check requirements params)]
-    (if (empty? errors)
+(defn signup [store {:as params :keys [email password]}]
+  (let [check (checker/check-signup store params)]
+    (if (:valid check)
       [:success (storage/add-user @store email password)]
-      [:failure errors])))
+      [:failure (:errors check)])))
 
-(defn login [store {:as params' :keys [email password]}]
-  (let [params (assoc params' :both [email password])
-        requirements {:email [(complement empty?)
-                              "You must enter an email address"]
-                      :password [(complement empty?)
-                                 "You must enter a password"]
-                      :both [(fn [[e p]]
-                               (when-let [user (storage/get-user @store e)]
-                                 (storage/check-pw @store user p)))
-                             "Incorrect email or password"]}
-        errors (check requirements params)]
-    (if (empty? errors)
-      [:success (storage/get-user @store email)]
-      [:failure errors])))
+(defn login [store {:as params :keys [email password]}]
+  (let [check (checker/check-login store params)]
+    (if (:valid check)
+      [:success (:user check)]
+      [:failure (:errors check)])))
 
 (defn by-id [store id]
   (storage/get-user-by-id @store id))
 
+(def workout-keys [:id :type :weight :reps :sets])
+
 (defn add-workout [store user params]
-  (let [add-workout (partial storage/add-workout @store user)
-        form (form
-               {}
-               :type [non-blank]
-               :date [#(if (re-matches #"\d{4}-\d{2}-\d{2}" %)
-                         %
-                         (throw+ "Invalid format"))]
-               :weight [non-blank]
-               :reps [non-blank]
-               :sets [non-blank]
-               :red-tape/form [add-workout])]
-    (form params)))
+  (let [check (checker/check-new-workout params)]
+    (if (:valid check)
+      [:success (storage/add-workout
+                  @store
+                  user
+                  (utils/remove-nil-values (select-keys check workout-keys)))]
+      [:failure (:errors check)])))
+
+(defn update-workout [store user params]
+  (let [check (checker/check-update-workout params)]
+    (if (:valid check)
+      [:success (storage/update-workout
+                  @store
+                  user
+                  (utils/remove-nil-values (select-keys check workout-keys)))]
+      [:failure (:errors check)])))
 
 (defn workouts
   ([store user] (workouts store user {}))

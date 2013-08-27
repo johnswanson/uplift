@@ -29,20 +29,22 @@
     (case status
       :success (redirect-as resp "/")
       :failure (signup/get-page {:form {:email (:email params)
-                                        :errors (map val resp)}}))))
+                                        :errors resp}}))))
 
 (defn login [store params]
   (let [[status resp] (user/login store params)]
     (case status
       :success (redirect-as resp "/")
       :failure (login/get-page {:form {:email (:email params)
-                                       :errors (map val resp)}}))))
+                                       :errors resp}}))))
 
 (defn add-workout [store user params]
   (let [result (user/add-workout store user params)]
-    (if (:errors result)
-      (:errors result)
-      (str (:results result)))))
+    (str result)))
+
+(defn update-workout [store user params]
+  (let [result (user/update-workout store user params)]
+    (str result)))
 
 (defn create-handler* [store]
   (routes

@@ -33,3 +33,7 @@
         (try (apply local-date %)
             (catch Exception e nil))
         nil))))
+
+(defn remove-nil-values [m]
+  (into {} (remove (fn [[k v]] (nil? v)) m)))
+

@@ -17,6 +17,7 @@
   (change-password [this user new-password])
 
   (add-workout [this user workout])
+  (update-workout [this user workout])
   (get-workouts [this user])
 
   (read-session' [this key])
@@ -99,6 +100,14 @@
                       (update-in [:users (:id user) :workouts] conj id)
                       (update-in [:workouts] assoc id workout)))))
       (get-in @db [:workouts @id-a])))
+
+  (update-workout [_ user workout]
+    (let [id (:id workout)]
+      (swap! db (fn [db]
+                  (let [old-workout (get-in [:workouts id])
+                        new-workout (merge old-workout workout)]
+                    (assoc-in [:workouts id] new-workout))))
+      (get-in @db [:workouts id])))
 
   (get-workouts [_ user]
     (let [db @db]
