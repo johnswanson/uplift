@@ -32,7 +32,7 @@
       [:failure (:errors check)])))
 
 (defn update-workout [store user params]
-  (let [check (checker/check-update-workout params)]
+  (let [check (checker/check-update-workout store user params)]
     (if (:valid check)
       [:success (storage/update-workout
                   @store

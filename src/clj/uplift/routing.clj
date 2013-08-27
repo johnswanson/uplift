@@ -55,10 +55,10 @@
     (POST "/signup" {params :params} (signup store params))
     (POST "/login" {params :params} (login store params))
     (GET "/see" {:keys [user params]}
-      (user/workouts store user params))
-    (GET "/add" [] add/get-page)
+      (when user (user/workouts store user params)))
+    (GET "/add" {user :user} (when user add/get-page))
     (POST "/add" {:keys [user params]}
-      (add-workout store user params))
+      (when user (add-workout store user params)))
     (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 

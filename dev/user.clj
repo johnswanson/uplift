@@ -38,3 +38,5 @@
 (defn reset []
   (stop)
   (refresh :after 'user/go))
+
+(defn store [] (get-in system [:storage :store]))

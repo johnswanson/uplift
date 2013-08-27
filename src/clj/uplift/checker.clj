@@ -58,10 +58,13 @@
 (defnk sets [params] (try (utils/parse-int (:sets params))
                           (catch Exception e nil)))
 (defnk id-present? [id] (not (nil? id)))
+(defnk user-owns-workout? [store user id]
+  (storage/owns-workout? @store user id))
 (defnk new-workout-errors [id-present?]
   (remove nil? [(if id-present? "ID present in new workout")]))
-(defnk update-workout-errors [id-present?]
-  (remove nil? [(if-not id-present? "ID required to update workout")]))
+(defnk update-workout-errors [id-present? user-owns-workout?]
+  (remove nil? [(if-not id-present? "ID required to update workout")
+                (if-not user-owns-workout? "Invalid workout ID")]))
 
 (def new-workout-requirements
   (graph/lazy-compile {:id id
@@ -80,11 +83,12 @@
                        :reps reps
                        :sets sets
                        :id-present? id-present?
+                       :user-owns-workout? user-owns-workout?
                        :errors update-workout-errors
                        :valid valid}))
 
 (defn check-new-workout [params]
   (new-workout-requirements {:params params}))
 
-(defn check-update-workout [params]
-  (update-workout-requirements {:params params}))
+(defn check-update-workout [store user params]
+  (update-workout-requirements {:params params :store store :user user}))

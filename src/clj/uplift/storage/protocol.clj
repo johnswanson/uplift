@@ -18,6 +18,7 @@
 
   (add-workout [this user workout])
   (update-workout [this user workout])
+  (owns-workout? [this user id])
   (get-workouts [this user])
 
   (read-session' [this key])
@@ -104,15 +105,19 @@
   (update-workout [_ user workout]
     (let [id (:id workout)]
       (swap! db (fn [db]
-                  (let [old-workout (get-in [:workouts id])
+                  (let [old-workout (get-in db [:workouts id])
                         new-workout (merge old-workout workout)]
-                    (assoc-in [:workouts id] new-workout))))
+                    (assoc-in db [:workouts id] new-workout))))
       (get-in @db [:workouts id])))
 
   (get-workouts [_ user]
     (let [db @db]
       (->> (get-in db [:users (:id user) :workouts])
         (map #(get-in db [:workouts %])))))
+
+  (owns-workout? [_ user id]
+    (let [db @db]
+      (some #{id} (get-in db [:users (:id user) :workouts]))))
 
   (read-session' [_ key]
     (get-in @db [:sessions key]))
