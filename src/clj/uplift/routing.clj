@@ -39,8 +39,10 @@
                                        :errors resp}}))))
 
 (defn add-workout [store user params]
-  (let [result (user/add-workout store user params)]
-    (str result)))
+  (let [[status resp] (user/add-workout store user params)]
+    (case status
+      :success {:status 200 :body (str resp)}
+      :failure {:status 400 :body (str resp)})))
 
 (defn update-workout [store user params]
   (let [result (user/update-workout store user params)]
@@ -59,6 +61,8 @@
     (GET "/add" {user :user} (when user add/get-page))
     (POST "/add" {:keys [user params]}
       (when user (add-workout store user params)))
+    (POST "/update/:id" {:keys [user params]}
+      (when user (update-workout store user params)))
     (GET "/logout" [] (redirect-as nil "/"))
     (not-found "404")))
 
@@ -72,6 +76,10 @@
     (-> (assoc req :params (into {} (map (fn [[k v]] [(keyword k) v]) params)))
       (handler))))
 
+(defn wrap-errors [handler]
+  (fn [req] (try (handler req)
+                 (catch Exception e (str e)))))
+
 (defn create-handler [store]
   (-> (create-handler* store)
     (wrap-param-keywords)
@@ -79,4 +87,5 @@
     (edn-middleware/wrap-edn-params)
     (wrap-user store)
     (session/wrap-session {:store (storage/session-store store)})
-    (cookies/wrap-cookies)))
+    (cookies/wrap-cookies)
+    (wrap-errors)))

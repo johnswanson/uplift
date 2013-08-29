@@ -42,7 +42,8 @@
                   
 
                  [hiccup "1.0.3"]
-                 [hiccups "0.2.0"]
+
+                 [prismatic/dommy "0.1.1"]
                  [org.clojure/google-closure-library-third-party "0.0-2029"]
                  [domina "1.0.2-SNAPSHOT"]
 

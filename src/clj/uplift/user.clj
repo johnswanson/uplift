@@ -20,7 +20,7 @@
 (defn by-id [store id]
   (storage/get-user-by-id @store id))
 
-(def workout-keys [:id :type :weight :reps :sets])
+(def workout-keys [:id :type :date :weight :reps :sets])
 
 (defn add-workout [store user params]
   (let [check (checker/check-new-workout params)]

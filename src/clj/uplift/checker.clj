@@ -57,14 +57,19 @@
                           (catch Exception e nil)))
 (defnk sets [params] (try (utils/parse-int (:sets params))
                           (catch Exception e nil)))
+(defnk date-formatted? [date] (try (re-matches #"\d{4}-\d{2}-\d{2}" date)
+                                   (catch Exception e nil)))
+(defnk date [params] (:date params))
 (defnk id-present? [id] (not (nil? id)))
 (defnk user-owns-workout? [store user id]
   (storage/owns-workout? @store user id))
-(defnk new-workout-errors [id-present?]
-  (remove nil? [(if id-present? "ID present in new workout")]))
-(defnk update-workout-errors [id-present? user-owns-workout?]
+(defnk new-workout-errors [id-present? date date-formatted?]
+  (remove nil? [(if id-present? "ID present in new workout")
+                (if (and date (not date-formatted?)) "Incorrect date format")]))
+(defnk update-workout-errors [id-present? user-owns-workout? date date-formatted?]
   (remove nil? [(if-not id-present? "ID required to update workout")
-                (if-not user-owns-workout? "Invalid workout ID")]))
+                (if-not user-owns-workout? "Invalid workout ID")
+                (if (and date (not date-formatted?)) "Incorrect date format")]))
 
 (def new-workout-requirements
   (graph/lazy-compile {:id id
@@ -72,6 +77,8 @@
                        :weight weight
                        :reps reps
                        :sets sets
+                       :date date
+                       :date-formatted? date-formatted?
                        :id-present? id-present?
                        :errors new-workout-errors
                        :valid valid}))
@@ -82,6 +89,8 @@
                        :weight weight
                        :reps reps
                        :sets sets
+                       :date date
+                       :date-formatted? date-formatted?
                        :id-present? id-present?
                        :user-owns-workout? user-owns-workout?
                        :errors update-workout-errors
