@@ -49,9 +49,11 @@
      [:div.small-4.columns
       (sets-input sets)]]]])
 
-(defn new-activity []
-  [:div.row
-   [:div.small-6.small-offset-3.columns
+(defn new-date [date]
+  [:div.day.row
+   [:div.small-8.small-offset-2.columns
+    [:div.row.collapse
+     [:h1 date]]
     [:div.row.collapse
      [:div.small-10.columns
       [:input.lift-type {:type "text" :placeholder "Lift Name"}]]
@@ -60,7 +62,6 @@
 
 (defn get-page [{:keys [user activities]}]
   (base/base {:content [:div
-                        [:div#activities (map exercise activities)]
-                        [:div#new-activity (new-activity)]]
+                        [:div#activities (map exercise activities)]]
               :top-links (base/links-for user)
               :current "/add"}))

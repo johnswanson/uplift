@@ -2,40 +2,25 @@
   (:require [uplift.js-utils :as utils]
             [uplift.views.add]
             [uplift.edn-ajax :as ajax]
+            [cljs.core.async :refer [put! chan <!]]
             [domina.css :refer [sel]]
             [domina.events :refer [listen!]]
             [dommy.core :as dommy])
   (:require-macros [cljs.core.async.macros :as m :refer [go]]
                    [dommy.macros :refer [sel sel1]]))
 
-(def activities (atom nil))
+(defn day-struct [date]
+  {:date date
+   :activities []})
 
-(add-watch activities :log (fn [_ _ _ ns]
-                             (utils/log (str ns))))
+(defn activity-struct [name]
+  {:name name
+   :lifts []})
 
-(defn add-new-activity! [name date]
-  (swap! activities (fn [a]
-                      (assoc a date {:name name
-                                     :date date
-                                     :lifts []}))))
-
-(add-new-activity! "squat" "2012-08-2013")
-
-(defn add-new-workout! [{date :date :as workout}]
-  (swap! activities
-         (fn [{{lifts :lifts} date :as activities} workout]
-           (assoc-in activities [date :lifts] (conj lifts workout)))
-         workout))
-
-(defn lift-type-input [] (sel1 :input.lift-type))
-
-(defn append-new-activity []
-  (dommy/append!
-    (sel1 :div#activities)
-    (uplift.views.add/activity-template (dommy/value (lift-type-input)))))
-
-(defn new-lift-body []
-  (dommy/append! (sel1 :div#activities) (uplift.views.add/lift-body)))
+(defn lift-struct []
+  {:weight nil
+   :reps nil
+   :sets nil})
 
 (defn save-workout [workout]
   (let [c (ajax/request {:url "/add"
@@ -45,9 +30,41 @@
     (go
       (let [[status resp] (<! c)]
         (case status
-          :ok (add-new-workout! resp)
+          :ok (utils/log "successful: " (str resp))
           :error (utils/log "error occurred:" (str resp)))))))
 
-(listen! (sel "a.new-lift") :click (fn [evt] (save-workout {:date "2012-08-14"
-                                                            :type "squat"
-                                                            :reps 5})))
+(defn show-new-date [date]
+  (dommy/append!
+    (sel1 "div#activities")
+    (uplift.views.add/day-template date)))
+
+(defn day-context [date] (str "div.date-" date))
+
+(defn add-new-activity [day]
+  (let [name (dommy/value (sel1 [(day-context (:date day))
+                                 :input.lift-type]))
+        nd (update-in day [:activities] conj (activity-struct name))]
+    (utils/log (str nd))
+    nd))
+
+(defn new-day-channels [day]
+  (let [c (chan)
+        ctxt (day-context (:date day))]
+    (listen! (sel1 [ctxt :a.new-lift]) :click (fn [_] (put! c :new-activity)))
+    c))
+
+(defn new-date [date]
+  (show-new-date date)
+  (let [day (day-struct date)
+        c (new-day-channels day)]
+    (go
+      (loop [day day]
+        (let [evt (<! c)]
+          (case evt
+            :new-activity (recur (add-new-activity day))))))
+    day))
+
+(new-date "2012-08-29")
+
+(listen! (sel "a.new-lift") :click (fn [evt] nil))
+
