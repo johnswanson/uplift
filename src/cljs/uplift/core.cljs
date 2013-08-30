@@ -9,18 +9,7 @@
   (:require-macros [cljs.core.async.macros :as m :refer [go]]
                    [dommy.macros :refer [sel sel1]]))
 
-(defn day-struct [date]
-  {:date date
-   :activities []})
-
-(defn activity-struct [name]
-  {:name name
-   :lifts []})
-
-(defn lift-struct []
-  {:weight nil
-   :reps nil
-   :sets nil})
+(def days (atom []))
 
 (defn save-workout [workout]
   (let [c (ajax/request {:url "/add"
@@ -33,38 +22,52 @@
           :ok (utils/log "successful: " (str resp))
           :error (utils/log "error occurred:" (str resp)))))))
 
-(defn show-new-date [date]
-  (dommy/append!
-    (sel1 "div#activities")
-    (uplift.views.add/day-template date)))
+(defn new-day [date]
+  {:selector (format "[data-date='%s']" date)
+   :date date
+   :activities []
+   :type :day})
 
-(defn day-context [date] (str "div.date-" date))
+(defn new-activity [name]
+  {:selector (format "[data-activity='%s']" name)
+   :name name
+   :lifts []
+   :type :activity})
 
-(defn add-new-activity [day]
-  (let [name (dommy/value (sel1 [(day-context (:date day))
-                                 :input.lift-type]))
-        nd (update-in day [:activities] conj (activity-struct name))]
-    (utils/log (str nd))
-    nd))
+(defn sel-in-context [{type :type :as thing} & sels]
+  (sel (into [] (concat [(:selector thing)] sels))))
 
-(defn new-day-channels [day]
+(defn sel1-in-context [{type :type :as thing} & sels]
+  (sel1 (into [] (concat [(:selector thing)] sels))))
+
+(defn render-day "Renders a day and returns a channel used to transmit user
+                 actions about that day."
+  [day]
+  (dommy/append! (sel1 :div#activities) (uplift.views.add/day-template day))
   (let [c (chan)
-        ctxt (day-context (:date day))]
-    (listen! (sel1 [ctxt :a.new-lift]) :click (fn [_] (put! c :new-activity)))
+        new-lift-name #(dommy/value (sel1-in-context day :input.lift-type))
+        new-lift-fn #(put! c [:new-lift (new-lift-name)])]
+    (listen! (sel1-in-context day :a.new-lift) :click new-lift-fn)
+    (listen! (sel1-in-context day :input.lift-type) :keydown
+             #(if (= (:keyCode %) 13) (new-lift-fn %)))
     c))
 
-(defn new-date [date]
-  (show-new-date date)
-  (let [day (day-struct date)
-        c (new-day-channels day)]
-    (go
-      (loop [day day]
-        (let [evt (<! c)]
-          (case evt
-            :new-activity (recur (add-new-activity day))))))
-    day))
+(defn render-activity "Renders an activity and returns a channel used to
+                      transmit user interactions with that activity"
+  [day activity]
+  (dommy/append! (sel1 :div#activities)
+                 (uplift.views.add/activity-template activity)))
 
-(new-date "2012-08-29")
+(let [day (new-day "2012-08-29")
+      c (render-day day)]
+  (go
+    (loop []
+      (let [[status resp] (<! c)]
+        (case status
+          :new-lift (when (not (empty? resp))
+                      (render-activity day (new-activity resp)))
+          (js/log "invalid status:" (str status) (str resp)))
+        (recur)))))
 
 (listen! (sel "a.new-lift") :click (fn [evt] nil))
 

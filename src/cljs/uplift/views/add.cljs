@@ -8,14 +8,14 @@
     [:label "Sets" [:input.sets]]
     [:label "Reps" [:input.reps]]]])
 
-(deftemplate activity-template [activity-name]
-  [:div.lift.row
+(deftemplate activity-template [{name :name}]
+  [:div.lift.row {:data-name name}
    [:div.small-6.small-offset-3.columns
-    [:h3 activity-name]
+    [:h3 name]
     [:a.button.new-lift-body]]])
 
-(deftemplate day-template [date]
-  [:div.day.row {:class (str "date-" date)}
+(deftemplate day-template [{date :date}]
+  [:div.day.row {:data-date date}
    [:div.small-8.small-offset-2.columns
     [:div.row.collapse
      [:h1 date]]
