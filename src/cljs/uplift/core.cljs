@@ -3,9 +3,7 @@
             [uplift.views.add]
             [uplift.edn-ajax :as ajax]
             [cljs.core.async :refer [put! chan <!]]
-            [domina.css :refer [sel]]
-            [domina.events :refer [listen!]]
-            [dommy.core :as dommy])
+            [dommy.core :as dommy :refer [listen!]])
   (:require-macros [cljs.core.async.macros :as m :refer [go]]
                    [dommy.macros :refer [sel sel1]]))
 
@@ -49,7 +47,7 @@
         new-lift-fn #(put! c [:new-lift (new-lift-name)])]
     (listen! (sel1-in-context day :a.new-lift) :click new-lift-fn)
     (listen! (sel1-in-context day :input.lift-type) :keydown
-             #(if (= (:keyCode %) 13) (new-lift-fn %)))
+             #(if (= (.-keyCode %) 13) (new-lift-fn %)))
     c))
 
 (defn render-activity "Renders an activity and returns a channel used to
@@ -69,5 +67,5 @@
           (js/log "invalid status:" (str status) (str resp)))
         (recur)))))
 
-(listen! (sel "a.new-lift") :click (fn [evt] nil))
+(listen! (sel1 "a.new-lift") :click (fn [evt] nil))
 
