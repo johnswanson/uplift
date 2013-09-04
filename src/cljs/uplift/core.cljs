@@ -1,5 +1,7 @@
 (ns uplift.core
-  (:require [uplift.js-utils :as utils]
+  (:require [uplift.js-utils
+             :as utils
+             :refer [click-chan blur-chan filter-chan merge-chans]]
             [uplift.views.add]
             [uplift.edn-ajax :as ajax]
             [cljs.core.async :refer [put! chan <!]]
@@ -7,65 +9,101 @@
   (:require-macros [cljs.core.async.macros :as m :refer [go]]
                    [dommy.macros :refer [sel sel1]]))
 
-(def days (atom []))
+(declare add-new-lift add-new-activity no-refresh refresh change-lift lift-saved)
 
-(defn save-workout [workout]
-  (let [c (ajax/request {:url "/add"
-                     :method :post
-                     :data (str workout)
-                     :headers {:content-type "application/edn"}})]
-    (go
-      (let [[status resp] (<! c)]
-        (case status
-          :ok (utils/log "successful: " (str resp))
-          :error (utils/log "error occurred:" (str resp)))))))
+(def saved-lift-channel (chan))
 
-(defn new-day [date]
-  {:selector (format "[data-date='%s']" date)
-   :date date
-   :activities []
-   :type :day})
+(defn save-lift! [lift]
+  (let [rc saved-lift-channel
+        updating? (:on-server? lift)
+        url (if updating? (format "/update/%d" (:id lift)) "/add")
+        response-chan (ajax/request
+                        {:url url
+                         :method :post
+                         :data (str lift)
+                         :headers {:content-type "application/edn"}})]
+    (go (let [[status resp] (<! response-chan)]
+          (case status
+            :ok (put! rc [:lift-saved (merge lift resp {:on-server? true})])
+            :error (utils/log "error occurred!" (str resp)))))
+    rc))
 
-(defn new-activity [name]
-  {:selector (format "[data-activity='%s']" name)
-   :name name
-   :lifts []
-   :type :activity})
+(def user-inputs (merge-chans
+                   (click-chan :new-activity :a.new-activity)
+                   (click-chan :new-lift :a.new-lift-body)
+                   (blur-chan :change-weight :input.weight)
+                   (blur-chan :change-sets :input.sets)
+                   (blur-chan :change-reps :input.reps)
+                   saved-lift-channel))
 
-(defn sel-in-context [{type :type :as thing} & sels]
-  (sel (into [] (concat [(:selector thing)] sels))))
+(defn data [elem key]
+  (dommy/attr elem (str "data-" (name key))))
 
-(defn sel1-in-context [{type :type :as thing} & sels]
-  (sel1 (into [] (concat [(:selector thing)] sels))))
+(defn apply-changed-input-to-lift [state input key]
+  (change-lift state
+               (js/parseInt (data input :local-id))
+               key
+               (dommy/value input)))
 
-(defn render-day "Renders a day and returns a channel used to transmit user
-                 actions about that day."
-  [day]
-  (dommy/append! (sel1 :div#activities) (uplift.views.add/day-template day))
-  (let [c (chan)
-        new-lift-name #(dommy/value (sel1-in-context day :input.lift-type))
-        new-lift-fn #(put! c [:new-lift (new-lift-name)])]
-    (listen! (sel1-in-context day :a.new-lift) :click new-lift-fn)
-    (listen! (sel1-in-context day :input.lift-type) :keydown
-             #(if (= (.-keyCode %) 13) (new-lift-fn %)))
-    c))
-
-(defn render-activity "Renders an activity and returns a channel used to
-                      transmit user interactions with that activity"
-  [day activity]
-  (dommy/append! (sel1 :div#activities)
-                 (uplift.views.add/activity-template activity)))
-
-(let [day (new-day "2012-08-29")
-      c (render-day day)]
+(defn app [start-state]
   (go
-    (loop []
-      (let [[status resp] (<! c)]
-        (case status
-          :new-lift (when (not (empty? resp))
-                      (render-activity day (new-activity resp)))
-          (js/log "invalid status:" (str status) (str resp)))
-        (recur)))))
+    (loop [state start-state]
+      (utils/log (str state))
+      (uplift.views.add/render-templates state)
+      (let [[msg value] (<! user-inputs)
+            target (try (.-target value) (catch js/Error e nil))]
+        (-> (case msg
+              :new-activity (refresh
+                              (add-new-activity
+                                state
+                                (dommy/value (sel1 :input.lift-type))))
+              :new-lift (refresh (add-new-lift state (data target :activity-index)))
+              :change-weight (no-refresh (change-lift state
+                                                      (js/parseInt (data target :local-id))
+                                                      :weight
+                                                      (dommy/value target)))
+              :change-sets (no-refresh (change-lift state
+                                                    (js/parseInt (data target :local-id))
+                                                    :sets
+                                                    (dommy/value target)))
+              :change-reps (no-refresh (change-lift state
+                                                    (js/parseInt (data target :local-id))
+                                                    :reps
+                                                    (dommy/value target)))
+              :lift-saved (refresh (lift-saved state value))
+              state)
+          (recur))))))
 
-(listen! (sel1 "a.new-lift") :click (fn [evt] nil))
+(def initial-state {:next-id 0
+                    :refresh? true
+                    :date "2012-08-30"
+                    :activities []
+                    :lifts {}})
+
+(app initial-state)
+
+(defn lift-saved [state lift]
+  (update-in state [:lifts] assoc (:local-id lift) lift))
+
+(defn add-new-activity [state name]
+  (-> state
+    (update-in [:activities] conj {:name name, :lifts []})))
+
+(defn add-new-lift [state activity-index]
+  (let [id (:next-id state)]
+    (-> state
+      (update-in [:activities activity-index :lifts] conj id)
+      (update-in [:lifts] assoc id {:sets nil, :reps nil,
+                                    :weight nil, :editing? true,
+                                    :local-id id})
+      (update-in [:next-id] inc))))
+
+(defn change-lift [state id key val]
+  (let [new-state (update-in state [:lifts id] assoc key (js/parseInt val))
+        new-lift (get-in new-state [:lifts id])]
+    (save-lift! new-lift)
+    new-state))
+
+(defn refresh [state] (assoc state :refresh? true))
+(defn no-refresh [state] (assoc state :refresh? false))
 
